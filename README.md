@@ -1,8 +1,6 @@
 # Avengers: Doomsday — Fan Variance Authority
 
-Pitch demo and blueprint for the Fan Variance Authority profile analyzer.
-
-Markets in scope: EMEA, Japan, Canada, LATAM, APAC.
+Pitch demo for the Fan Variance Authority profile analyzer.
 
 ## Demo
 
