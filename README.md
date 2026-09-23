@@ -27,3 +27,15 @@ Optional, for a live handle:
 No image is generated. The report card is a composition. In production that composition is a Shotstack render of brand artwork plus the four fields. A profile frame, if used, sits on the fan’s existing photo via oAuth.
 
 Reply prompt used by the server: `Avengers_Doomsday_Fanalyzer_system_prompt_v0.txt`
+
+## Vercel
+
+Import [dianalauragarcia/doomsday](https://github.com/dianalauragarcia/doomsday). Framework preset: **Other**. No build command. Output is the `public` folder, which Vercel serves as-is. `/api/samples` and `/api/analyze` run as one Node function.
+
+Set these environment variables on the project:
+
+- `X_BEARER_TOKEN` — required for live handles
+- `XAI_API_KEY` — optional; Grok writes the reply only
+- `XAI_MODEL` — optional
+
+Sample profiles work without either key.

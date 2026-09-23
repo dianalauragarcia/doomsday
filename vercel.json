@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/**": {
+      "maxDuration": 30,
+      "includeFiles": "Avengers_Doomsday_Fanalyzer_system_prompt_v0.txt"
+    }
+  }
+}

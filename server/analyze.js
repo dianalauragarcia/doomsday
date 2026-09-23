@@ -4,10 +4,24 @@ import { fileURLToPath } from "node:url";
 import { ALCHEMY, CHARACTERS, SUPERPOWER_BY_ID } from "./catalog.js";
 import { extractSignals, pickFandom } from "./signals.js";
 
-const SYSTEM_PROMPT = readFileSync(
-  join(dirname(fileURLToPath(import.meta.url)), "..", "Avengers_Doomsday_Fanalyzer_system_prompt_v0.txt"),
-  "utf8",
-);
+const PROMPT_FILE = "Avengers_Doomsday_Fanalyzer_system_prompt_v0.txt";
+
+function readPrompt() {
+  const candidates = [
+    join(dirname(fileURLToPath(import.meta.url)), "..", PROMPT_FILE),
+    join(process.cwd(), PROMPT_FILE),
+  ];
+  for (const path of candidates) {
+    try {
+      return readFileSync(path, "utf8");
+    } catch {
+      // try the next location (local repo root, or the Vercel function bundle)
+    }
+  }
+  throw new Error(`Missing ${PROMPT_FILE}`);
+}
+
+const SYSTEM_PROMPT = readPrompt();
 
 function scoreSuperpower(behavior) {
   const scored = [];
