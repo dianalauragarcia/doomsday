@@ -21,7 +21,7 @@ That reruns the seven sample profiles and checks the assignments.
 
 Optional, for a live handle:
 
-- `X_BEARER_TOKEN` in `.env` reads the public X profile (bio, up to 200 recent posts, follows, likes when the token allows). The server loads `.env` on startup.
+- `X_BEARER_TOKEN` in `.env` reads the public X profile: bio, name, metrics, and the last 100 posts, plus follows and likes when the token allows. The server loads `.env` on startup.
 - `XAI_API_KEY` lets Grok write the @reply only. The four assignments stay deterministic. If Grok is absent or fails, the template reply is used.
 
 No image is generated. The report card is a composition. In production that composition is a Shotstack render of brand artwork plus the four fields. A profile frame, if used, sits on the fan’s existing photo via oAuth.

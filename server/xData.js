@@ -45,37 +45,28 @@ function kindOf(tweet) {
 export async function fetchXProfile(username) {
   const clean = username.replace(/^@/, "");
   const userResp = await xFetch(
-    `/users/by/username/${encodeURIComponent(clean)}?user.fields=description,public_metrics,profile_image_url`,
+    `/users/by/username/${encodeURIComponent(clean)}?user.fields=description,name,public_metrics,profile_image_url,created_at,location,url,verified`,
   );
   if (!userResp.data) throw new XApiError(404, `X user @${clean} not found`);
 
   const user = userResp.data;
   const metrics = user.public_metrics;
   let posts = [];
-  let next = null;
-  for (let page = 0; page < 2; page += 1) {
-    const token = next ? `&pagination_token=${encodeURIComponent(next)}` : "";
-    try {
-      const tweets = await xFetch(
-        `/users/${user.id}/tweets?max_results=100&tweet.fields=text,created_at,public_metrics,referenced_tweets${token}`,
-      );
-      if (Array.isArray(tweets.data)) {
-        posts = posts.concat(
-          tweets.data.map((tweet) => ({
-            text: String(tweet.text ?? ""),
-            kind: kindOf(tweet),
-            createdAt: tweet.created_at,
-            likeCount: tweet.public_metrics?.like_count ?? 0,
-            repostCount: tweet.public_metrics?.retweet_count ?? 0,
-          })),
-        );
-      }
-      next = tweets.meta?.next_token;
-      if (!next) break;
-    } catch (error) {
-      if (error instanceof XApiError && error.status === 429) throw error;
-      break;
+  try {
+    const tweets = await xFetch(
+      `/users/${user.id}/tweets?max_results=100&tweet.fields=text,created_at,public_metrics,referenced_tweets`,
+    );
+    if (Array.isArray(tweets.data)) {
+      posts = tweets.data.slice(0, 100).map((tweet) => ({
+        text: String(tweet.text ?? ""),
+        kind: kindOf(tweet),
+        createdAt: tweet.created_at,
+        likeCount: tweet.public_metrics?.like_count ?? 0,
+        repostCount: tweet.public_metrics?.retweet_count ?? 0,
+      }));
     }
+  } catch (error) {
+    if (error instanceof XApiError && error.status === 429) throw error;
   }
 
   let follows = [];
@@ -116,7 +107,7 @@ export async function fetchXProfile(username) {
           tweets: metrics.tweet_count ?? 0,
         }
       : { followers: 0, following: 0, tweets: 0 },
-    posts: posts.slice(0, 200),
+    posts: posts.slice(0, 100),
     follows,
     followsUnavailable,
     likesGiven,
