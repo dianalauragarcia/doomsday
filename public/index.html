@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fan Variance Authority · Avengers: Doomsday</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <div>
+        <p class="kicker">Avengers: Doomsday</p>
+        <p class="wordmark">Fan Variance Authority</p>
+      </div>
+    </div>
+    <p class="markets">EMEA · Japan · Canada · LATAM · APAC</p>
+  </header>
+
+  <main class="panel">
+    <section class="intro">
+      <p class="eyebrow">Like the post. Get your MCU read.</p>
+      <h1>What does your X timeline say about your MCU fandom?</h1>
+      <p class="lede">
+        Opt in and the Authority reads your bio, the accounts you follow, your recent posts, and your MCU reposts.
+        You get four things: how diehard you are, your top fandom, your X superpower, and the alchemy that complements it.
+      </p>
+
+      <form id="form" class="lookup">
+        <label class="field">
+          <span>X handle</span>
+          <input id="handle" name="handle" type="text" placeholder="@username" autocomplete="off" />
+        </label>
+        <button class="go" type="submit">Read my timeline</button>
+      </form>
+      <p class="fine">Live reads use the X API when a bearer token is configured. Sample profiles run with no keys.</p>
+      <div id="samples" class="samples"></div>
+      <p id="error" class="error" hidden></p>
+    </section>
+
+    <section class="stage" aria-live="polite">
+      <article id="empty" class="card idle">
+        <p class="card-kicker">Composed report</p>
+        <h2>Four fields. No generated image.</h2>
+        <ol class="spec">
+          <li><strong>Diehard</strong> Top 5%, 10%, 25%, or 50%, ranked against the baseline audience.</li>
+          <li><strong>Top fandom</strong> The MCU character your bio, follows, posts, and reposts point to.</li>
+          <li><strong>X superpower</strong> What your behavior on X maps to.</li>
+          <li><strong>Alchemy</strong> The character who complements that superpower.</li>
+        </ol>
+        <p class="fine">Production prints this card in Shotstack from brand artwork. Profile frames use the fan’s existing photo via oAuth.</p>
+      </article>
+
+      <article id="loading" class="card idle" hidden>
+        <p class="card-kicker">Reading the timeline</p>
+        <div class="shimmer"></div>
+        <div class="shimmer short"></div>
+        <div class="shimmer"></div>
+      </article>
+
+      <article id="report" class="card report" hidden>
+        <p class="card-kicker">Fan Variance Authority</p>
+        <div class="who">
+          <div class="avatar" id="avatar" aria-hidden="true">FV</div>
+          <div>
+            <p class="handle" id="who"></p>
+            <p class="frame-note">Existing profile photo. Frame is composited, not generated.</p>
+          </div>
+        </div>
+        <p class="diehard-label">Diehard</p>
+        <p class="diehard" id="percentile"></p>
+        <p class="note" id="percentile-note"></p>
+        <div class="grid">
+          <div>
+            <p class="label">Top fandom</p>
+            <p class="value" id="fandom"></p>
+            <p class="sub" id="fandom-meta"></p>
+          </div>
+          <div>
+            <p class="label">X superpower</p>
+            <p class="value" id="power"></p>
+            <p class="sub" id="power-meta"></p>
+          </div>
+        </div>
+        <div class="alchemy">
+          <p class="label">Alchemy</p>
+          <p class="value" id="alchemy"></p>
+          <p class="reason" id="reason"></p>
+        </div>
+        <div class="meters" id="meters"></div>
+        <p class="copy" id="copy"></p>
+        <button class="share" id="share" type="button">Share on X</button>
+        <p class="fine" id="meta"></p>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>EMEA · Japan · Canada · LATAM · APAC</p>
+    <p>Top-fan badges go out only after Disney vets the handles.</p>
+  </footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
