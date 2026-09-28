@@ -37,12 +37,12 @@ export const SAMPLES = [
   {
     id: "sue",
     label: "Invisible Woman · lurking",
-    blurb: "Bio and older posts, nothing in the last 28 days.",
+    blurb: "Bio and older posts. The last 100 posts still map a superpower.",
     expect: {
       fandom: "The Invisible Woman",
-      power: "Intangibility",
-      alchemy: "Winter Soldier",
-      percentile: "Top 25%",
+      power: "Vibranium Shield",
+      alchemy: "Magneto",
+      percentile: "Top 5%",
     },
     profile: {
       username: "suekeeper",
@@ -61,7 +61,7 @@ export const SAMPLES = [
     id: "loki",
     label: "Loki · quote posts",
     blurb: "Reframes other posts more than he posts his own.",
-    expect: { fandom: "Loki", power: "Illusions", alchemy: "Gambit", percentile: "Top 25%" },
+    expect: { fandom: "Loki", power: "Illusions", alchemy: "Gambit", percentile: "Top 5%" },
     profile: {
       username: "mischiefquotes",
       name: "Quote of Mischief",
@@ -84,7 +84,7 @@ export const SAMPLES = [
       fandom: "Nightcrawler",
       power: "Teleportation",
       alchemy: "Ant-Man",
-      percentile: "Top 25%",
+      percentile: "Top 5%",
     },
     profile: {
       username: "bamfunder",
@@ -108,7 +108,7 @@ export const SAMPLES = [
       fandom: "Gambit",
       power: "Kinetic Energy Charging",
       alchemy: "Loki",
-      percentile: "Top 10%",
+      percentile: "Top 5%",
     },
     profile: {
       username: "kineticfan",
@@ -132,7 +132,7 @@ export const SAMPLES = [
       fandom: "Magneto",
       power: "Magnetism Manipulation",
       alchemy: "Black Panther (Shuri)",
-      percentile: "Top 25%",
+      percentile: "Top 5%",
     },
     profile: {
       username: "masterofmagnet",
@@ -153,7 +153,7 @@ export const SAMPLES = [
       fandom: "Doctor Doom",
       power: "Vibranium Shield",
       alchemy: "Magneto",
-      percentile: "Top 25%",
+      percentile: "Top 5%",
     },
     profile: {
       username: "latveria",

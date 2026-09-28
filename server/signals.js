@@ -1,13 +1,33 @@
 import {
   AXIS_CAPS,
+  CHARACTER_HANDLES,
   CHARACTERS,
+  EXTRA_FRANCHISE_HANDLES,
   FRANCHISES,
+  NAMED_HANDLES,
   WIDE_HANDLES,
   WIDE_KEYWORDS,
   percentileLabel,
 } from "./catalog.js";
 
 const DAY = 24 * 60 * 60 * 1000;
+const SPECIFIC_NAME = {
+  ghost: ["ava starr"],
+  beast: ["hank mccoy"],
+  sentry: ["bob reynolds", "the void"],
+  storm: ["ororo munroe", "ororo", "x-men", "xmen"],
+  logan: ["wolverine", "adamantium", "james howlett"],
+  wong: ["kamar-taj", "doctor strange", "stephen strange"],
+  nebula: ["gamora", "guardians of the galaxy", "gotg", "star-lord", "star lord", "peter quill"],
+  mantis: ["guardians of the galaxy", "gotg", "drax", "gamora"],
+};
+
+function specificNamePresent(keyword, bioHits, postHits) {
+  const names = SPECIFIC_NAME[keyword];
+  if (!names) return true;
+  const hits = bioHits.concat(...postHits);
+  return hits.some((hit) => names.includes(hit.keyword));
+}
 
 export function normalize(value) {
   return String(value ?? "")
@@ -68,7 +88,7 @@ function blankScores() {
   const franchises = {};
   const characters = {};
   for (const franchise of FRANCHISES) {
-    franchises[franchise.id] = { points: 0, terms: new Set() };
+    franchises[franchise.id] = { points: 0, terms: new Set(), termCounts: {} };
     for (const character of franchise.characters) {
       characters[character.id] = { points: 0, terms: new Set() };
     }
@@ -85,6 +105,7 @@ function addHit(scores, hit, points) {
     const bucket = scores.franchises[hit.franchiseId];
     bucket.points += points;
     bucket.terms.add(hit.keyword);
+    bucket.termCounts[hit.keyword] = (bucket.termCounts[hit.keyword] || 0) + 1;
     return;
   }
   const bucket = scores.characters[hit.characterId];
@@ -95,23 +116,51 @@ function addHit(scores, hit, points) {
 export function extractSignals(profile, now = Date.now()) {
   const scores = blankScores();
   const bioHits = matchText(profile.description);
-  const bioTerms = new Set();
-  for (const hit of bioHits) {
-    bioTerms.add(hit.keyword);
-    addHit(scores, hit, 4);
-  }
-
+  const postHits = (profile.posts ?? []).map((post) => matchText(post.text));
   const followed = new Set(
     (profile.follows ?? []).map((handle) => normalize(handle).replace(/^@/, "")),
   );
   const followedMonitored = [];
   for (const franchise of FRANCHISES) {
-    for (const handle of franchise.handles) {
+    const handles = franchise.handles.concat(EXTRA_FRANCHISE_HANDLES[franchise.id] ?? []);
+    for (const handle of handles) {
       if (!followed.has(handle)) continue;
       followedMonitored.push(handle);
-      scores.franchises[franchise.id].points += 6;
-      scores.franchises[franchise.id].terms.add(`@${handle}`);
     }
+  }
+  const keep = (hit) =>
+    hit.scope !== "character" || specificNamePresent(hit.keyword, bioHits, postHits);
+
+  const bioTerms = new Set();
+  for (const hit of bioHits.filter(keep)) {
+    bioTerms.add(hit.keyword);
+    addHit(scores, hit, 4);
+  }
+
+  for (const handle of followedMonitored) {
+    const franchise = FRANCHISES.find((item) =>
+      item.handles.concat(EXTRA_FRANCHISE_HANDLES[item.id] ?? []).includes(handle),
+    );
+    if (!franchise) continue;
+    scores.franchises[franchise.id].points += 6;
+    scores.franchises[franchise.id].terms.add(`@${handle}`);
+  }
+  for (const [characterId, handles] of Object.entries(CHARACTER_HANDLES)) {
+    for (const handle of handles) {
+      if (!followed.has(handle)) continue;
+      if (!followedMonitored.includes(handle)) followedMonitored.push(handle);
+      const bucket = scores.characters[characterId];
+      bucket.points += 6;
+      bucket.terms.add(`@${handle}`);
+    }
+  }
+  for (const named of NAMED_HANDLES) {
+    if (!followed.has(named.handle)) continue;
+    if (!followedMonitored.includes(named.handle)) followedMonitored.push(named.handle);
+    const bucket = scores.franchises[named.franchiseId];
+    bucket.points += 7;
+    bucket.terms.add(`@${named.handle}`);
+    bucket.termCounts[named.keyword] = (bucket.termCounts[named.keyword] || 0) + 1;
   }
   const wideFollows = WIDE_HANDLES.filter((handle) => followed.has(handle));
 
@@ -128,11 +177,11 @@ export function extractSignals(profile, now = Date.now()) {
     repostsReceived: 0,
   };
 
-  for (const post of profile.posts ?? []) {
+  for (const [postIndex, post] of (profile.posts ?? []).entries()) {
     const created = new Date(post.createdAt).getTime();
     const inWindow = Number.isFinite(created) && created >= windowStart;
     const kind = post.kind || "original";
-    const hits = matchText(post.text);
+    const hits = postHits[postIndex].filter(keep);
     const franchiseOrCharacter = hits.some(
       (hit) => hit.scope === "franchise" || hit.scope === "character",
     );
@@ -161,6 +210,32 @@ export function extractSignals(profile, now = Date.now()) {
       behavior.originalsWithMetrics += 1;
       behavior.likesReceived += Number(post.likeCount ?? 0);
       behavior.repostsReceived += Number(post.repostCount ?? 0);
+    }
+  }
+
+  const recentActivity = behavior.originals28d + behavior.replies28d + behavior.quotes28d + behavior.reposts28d;
+  if (recentActivity === 0 && (profile.posts ?? []).length > 0) {
+    behavior.originals28d = 0;
+    behavior.replies28d = 0;
+    behavior.quotes28d = 0;
+    behavior.reposts28d = 0;
+    behavior.likesReceived = 0;
+    behavior.originalsWithMetrics = 0;
+    behavior.repostsReceived = 0;
+    for (const post of profile.posts ?? []) {
+      const kind = post.kind || "original";
+      if (kind === "repost") {
+        behavior.reposts28d += 1;
+        continue;
+      }
+      if (kind === "reply") behavior.replies28d += 1;
+      else if (kind === "quote") behavior.quotes28d += 1;
+      else {
+        behavior.originals28d += 1;
+        behavior.originalsWithMetrics += 1;
+        behavior.likesReceived += Number(post.likeCount ?? 0);
+        behavior.repostsReceived += Number(post.repostCount ?? 0);
+      }
     }
   }
 
@@ -214,7 +289,62 @@ export function extractSignals(profile, now = Date.now()) {
     },
     postsRead: (profile.posts ?? []).length,
     followsRead: (profile.follows ?? []).length,
+    aboveFloor:
+      axesRaw.bio > 0 ||
+      axesRaw.posts > 0 ||
+      axesRaw.reposts > 0 ||
+      followedMonitored.length > 0,
   };
+}
+
+export function rankCohort(rows) {
+  const total = rows.length;
+  const cuts = [
+    { label: "Top 5%", limit: Math.round(total * 0.05) },
+    { label: "Top 10%", limit: Math.round(total * 0.1) },
+    { label: "Top 25%", limit: Math.round(total * 0.25) },
+    { label: "Top 50%", limit: Math.round(total * 0.5) },
+  ];
+  const order = rows
+    .map((row, index) => ({ index, row }))
+    .sort(
+      (a, b) =>
+        b.row.blended - a.row.blended ||
+        (b.row.posts28d || 0) - (a.row.posts28d || 0) ||
+        (b.row.postsRead || 0) - (a.row.postsRead || 0) ||
+        a.index - b.index,
+    );
+  const labels = rows.map(() => "Outside Top 50%");
+  order.forEach((item, rank) => {
+    const band = cuts.find((cut) => rank < cut.limit);
+    if (band) labels[item.index] = band.label;
+  });
+  return labels;
+}
+
+const NAMED_FRANCHISE_TERMS = [
+  ["spider-man", "Spider-Man"],
+  ["spider man", "Spider-Man"],
+  ["spiderman", "Spider-Man"],
+  ["iron man", "Iron Man"],
+  ["hulk", "Hulk"],
+  ["wolverine", "Wolverine"],
+  ["deadpool", "Deadpool"],
+  ["thanos", "Thanos"],
+];
+
+function namedFranchiseLabel(termCounts = {}) {
+  const totals = new Map();
+  for (const [keyword, label] of NAMED_FRANCHISE_TERMS) {
+    const count = termCounts[keyword] || 0;
+    if (count <= 0) continue;
+    totals.set(label, (totals.get(label) || 0) + count);
+  }
+  let best = null;
+  for (const [label, count] of totals) {
+    if (!best || count > best.count) best = { label, count };
+  }
+  return best?.label ?? null;
 }
 
 export function pickFandom(scores) {
@@ -242,14 +372,30 @@ export function pickFandom(scores) {
     const bucket = scores.franchises[franchise.id];
     if (bucket.points <= 0) continue;
     if (!bestFranchise || bucket.points > bestFranchise.points) {
-      bestFranchise = { franchise, points: bucket.points, terms: [...bucket.terms] };
+      bestFranchise = {
+        franchise,
+        points: bucket.points,
+        terms: [...bucket.terms],
+        termCounts: bucket.termCounts,
+      };
     }
   }
   if (!bestFranchise) return null;
-  const lead = bestFranchise.franchise.characters[0];
+  const named = namedFranchiseLabel(bestFranchise.termCounts);
+  if (named) {
+    return {
+      id: null,
+      name: named,
+      franchiseId: bestFranchise.franchise.id,
+      franchiseName: bestFranchise.franchise.name,
+      points: bestFranchise.points,
+      evidence: bestFranchise.terms.slice(0, 4),
+      viaFranchise: false,
+    };
+  }
   return {
-    id: lead.id,
-    name: lead.name,
+    id: null,
+    name: bestFranchise.franchise.name,
     franchiseId: bestFranchise.franchise.id,
     franchiseName: bestFranchise.franchise.name,
     points: bestFranchise.points,

@@ -7,6 +7,8 @@ const loadingEl = document.querySelector("#loading");
 const reportEl = document.querySelector("#report");
 
 let lastCopy = "";
+let slides = [];
+let slideIndex = 0;
 
 function showError(message) {
   errorEl.hidden = !message;
@@ -29,11 +31,41 @@ function meter(label, raw, score) {
   return row;
 }
 
+function showSlide(index) {
+  if (!slides.length) return;
+  slideIndex = (index + slides.length) % slides.length;
+  const slide = slides[slideIndex];
+  document.querySelector("#slide-label").textContent = slide.label;
+  document.querySelector("#slide-title").textContent = slide.title;
+  document.querySelector("#slide-body").textContent = slide.body;
+  document.querySelectorAll(".dot").forEach((dot, dotIndex) => {
+    const on = dotIndex === slideIndex;
+    dot.classList.toggle("on", on);
+    dot.setAttribute("aria-selected", String(on));
+  });
+}
+
+function renderDots() {
+  const dots = document.querySelector("#dots");
+  dots.replaceChildren();
+  slides.forEach((slide, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "dot";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-label", slide.label);
+    button.addEventListener("click", () => showSlide(index));
+    dots.append(button);
+  });
+}
+
 function render(result) {
   emptyEl.hidden = true;
   loadingEl.hidden = true;
   reportEl.hidden = false;
   lastCopy = result.shareText;
+  slides = result.slides ?? [];
+  slideIndex = 0;
 
   const avatar = document.querySelector("#avatar");
   if (result.profileImageUrl) {
@@ -45,16 +77,8 @@ function render(result) {
   }
 
   document.querySelector("#who").textContent = `@${result.handle}`;
-  document.querySelector("#percentile").textContent = result.percentile;
-  document.querySelector("#percentile-note").textContent = result.percentileNote;
-  document.querySelector("#fandom").textContent = result.fandom?.name ?? "Unranked";
-  document.querySelector("#fandom-meta").textContent = result.fandom
-    ? `${result.fandom.franchise}${result.fandom.evidence?.length ? " · " + result.fandom.evidence.join(", ") : ""}`
-    : "Not enough MCU signal yet";
-  document.querySelector("#power").textContent = result.superpower.name;
-  document.querySelector("#power-meta").textContent = `${result.superpower.means}. ${result.superpower.because}.`;
-  document.querySelector("#alchemy").textContent = result.alchemy.name;
-  document.querySelector("#reason").textContent = result.alchemy.reason;
+  renderDots();
+  showSlide(0);
 
   const meters = document.querySelector("#meters");
   meters.replaceChildren(
@@ -69,7 +93,7 @@ function render(result) {
     `${result.postsRead} posts read`,
     result.followsUnavailable ? "follows unavailable" : `${result.followsRead} follows read`,
     result.copySource === "grok" ? "reply written by Grok" : "reply from the template",
-    "card composed, not generated",
+    "one carousel, four slides",
   ];
   document.querySelector("#meta").textContent = bits.join(" · ");
 }
@@ -103,6 +127,9 @@ document.querySelector("#share").addEventListener("click", () => {
   const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(lastCopy)}`;
   window.open(url, "_blank", "noopener");
 });
+
+document.querySelector("#prev").addEventListener("click", () => showSlide(slideIndex - 1));
+document.querySelector("#next").addEventListener("click", () => showSlide(slideIndex + 1));
 
 const samples = await fetch("/api/samples").then((response) => response.json());
 for (const sample of samples) {

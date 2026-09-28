@@ -23,7 +23,7 @@
       <h1>What does your X timeline say about your MCU fandom?</h1>
       <p class="lede">
         Opt in and the Authority reads your bio, the accounts you follow, your recent posts, and your MCU reposts.
-        You get four things: how diehard you are, your top fandom, your X superpower, and the alchemy that complements it.
+        You get one reply. Swipe the carousel: diehard rank, top fandom, X superpower, and alchemy.
       </p>
 
       <form id="form" class="lookup">
@@ -40,15 +40,15 @@
 
     <section class="stage" aria-live="polite">
       <article id="empty" class="card idle">
-        <p class="card-kicker">Composed report</p>
-        <h2>Four fields. No generated image.</h2>
+        <p class="card-kicker">One reply</p>
+        <h2>Four slides. One carousel.</h2>
         <ol class="spec">
-          <li><strong>Diehard</strong> Top 5%, 10%, 25%, or 50%, ranked against the baseline audience.</li>
+          <li><strong>Diehard</strong> Top 5%, 10%, 25%, or 50%, ranked against the 15,000-follower baseline.</li>
           <li><strong>Top fandom</strong> The MCU character your bio, follows, posts, and reposts point to.</li>
-          <li><strong>X superpower</strong> What your behavior on X maps to.</li>
-          <li><strong>Alchemy</strong> The character who complements that superpower.</li>
+          <li><strong>X superpower</strong> What your behavior on X maps to. Quiet timelines get Intangibility or Phasing.</li>
+          <li><strong>Alchemy</strong> The character who complements that superpower character.</li>
         </ol>
-        <p class="fine">Production prints this card in Shotstack from brand artwork. Profile frames use the fan’s existing photo via oAuth.</p>
+        <p class="fine">Production attaches four Shotstack slides to a single post. Profile frames use the fan’s existing photo via oAuth.</p>
       </article>
 
       <article id="loading" class="card idle" hidden>
@@ -59,39 +59,68 @@
       </article>
 
       <article id="report" class="card report" hidden>
-        <p class="card-kicker">Fan Variance Authority</p>
+        <p class="card-kicker">One reply</p>
         <div class="who">
           <div class="avatar" id="avatar" aria-hidden="true">FV</div>
           <div>
             <p class="handle" id="who"></p>
-            <p class="frame-note">Existing profile photo. Frame is composited, not generated.</p>
+            <p class="frame-note">Swipe the carousel. Each slide is one match.</p>
           </div>
         </div>
-        <p class="diehard-label">Diehard</p>
-        <p class="diehard" id="percentile"></p>
-        <p class="note" id="percentile-note"></p>
-        <div class="grid">
-          <div>
-            <p class="label">Top fandom</p>
-            <p class="value" id="fandom"></p>
-            <p class="sub" id="fandom-meta"></p>
+        <div class="carousel" id="carousel">
+          <p class="label" id="slide-label"></p>
+          <p class="slide-title" id="slide-title"></p>
+          <p class="reason" id="slide-body"></p>
+          <div class="carousel-bar">
+            <button class="nav" id="prev" type="button">Previous</button>
+            <div class="dots" id="dots" role="tablist" aria-label="Carousel slides"></div>
+            <button class="nav" id="next" type="button">Next</button>
           </div>
-          <div>
-            <p class="label">X superpower</p>
-            <p class="value" id="power"></p>
-            <p class="sub" id="power-meta"></p>
-          </div>
-        </div>
-        <div class="alchemy">
-          <p class="label">Alchemy</p>
-          <p class="value" id="alchemy"></p>
-          <p class="reason" id="reason"></p>
         </div>
         <div class="meters" id="meters"></div>
         <p class="copy" id="copy"></p>
         <button class="share" id="share" type="button">Share on X</button>
         <p class="fine" id="meta"></p>
       </article>
+    </section>
+
+    <section class="baseline" aria-label="Audience metrics from 15,000 followers">
+      <p class="eyebrow">Baseline · 15,000 followers of @MarvelStudios</p>
+      <h2>Audience metrics</h2>
+      <div class="metric-grid">
+        <div>
+          <p class="card-kicker">Diehard</p>
+          <ul class="metrics">
+            <li><span>Top 5%</span><strong>1,389</strong></li>
+            <li><span>Top 10%</span><strong>595</strong></li>
+            <li><span>Top 25%</span><strong>2,891</strong></li>
+            <li><span>Top 50%</span><strong>604</strong></li>
+            <li><span>Outside top 50%</span><strong>9,521</strong></li>
+          </ul>
+        </div>
+        <div>
+          <p class="card-kicker">Top fandom</p>
+          <ul class="metrics">
+            <li><span>No match</span><strong>4,936</strong></li>
+            <li><span>Spider-Man</span><strong>2,824</strong></li>
+            <li><span>Captain America</span><strong>1,838</strong></li>
+            <li><span>Iron Man</span><strong>1,086</strong></li>
+            <li><span>Thor</span><strong>664</strong></li>
+            <li><span>Ghost</span><strong>60</strong></li>
+          </ul>
+        </div>
+        <div>
+          <p class="card-kicker">X superpower</p>
+          <ul class="metrics">
+            <li><span>No match</span><strong>7,154</strong></li>
+            <li><span>Kinetic Energy Charging</span><strong>2,018</strong></li>
+            <li><span>Teleportation</span><strong>1,763</strong></li>
+            <li><span>Pym Particles</span><strong>1,605</strong></li>
+            <li><span>Super-Serum</span><strong>1,273</strong></li>
+          </ul>
+        </div>
+      </div>
+      <p class="fine">Diehard bands are the empirical 15,000 opt-in cutoffs (blended ≥ 0.25 / 0.1875 / 0.0625 / 1⁄48). Fandom and superpower counts are from the completed forced-match 15k run. A new report-prompt classify was still in progress when these numbers were published.</p>
     </section>
   </main>
 

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ALCHEMY, CHARACTERS, SUPERPOWER_BY_ID } from "./catalog.js";
+import { classifyFandom } from "./grokFandom.js";
 import { extractSignals, pickFandom } from "./signals.js";
 
 const PROMPT_FILE = "Avengers_Doomsday_Fanalyzer_system_prompt_v0.txt";
@@ -24,11 +25,6 @@ function readPrompt() {
 const SYSTEM_PROMPT = readPrompt();
 
 function scoreSuperpower(behavior) {
-  const scored = [];
-  const add = (id, points, because) => {
-    if (points > 0) scored.push({ id, points, because });
-  };
-
   const {
     posts28d,
     originals28d,
@@ -44,65 +40,83 @@ function scoreSuperpower(behavior) {
     profileUpdatedWeekOverWeek,
   } = behavior;
 
+  // First matching clear trigger wins (order matches the judge POWER TABLE).
   if (posts28d === 0 && reposts28d === 0) {
-    add("phasing", 100, "No posts and no reposts in the last 28 days");
+    return { id: "phasing", points: 100, because: "No posts or reposts in the last 28 days" };
   }
   if (posts28d >= 1 && posts28d <= 3 && reposts28d < 3 && quotes28d < 2) {
-    add("pym", 70, "Only a few posts in 28 days, then silence");
+    return { id: "pym", points: 26, because: "Only a few posts, then silence" };
   }
   if (profileUpdatedWeekOverWeek === true) {
-    add("shapeshift", 85, "Profile changed week over week");
+    return { id: "shapeshift", points: 85, because: "Profile changed week over week" };
   }
-  if (following > 0 && ratio >= 10) {
-    add("magnetism", 80, "Followers are at least 10× following");
-  }
-  if (followers >= 2500 && (ratio == null || ratio < 10)) {
-    add("elasticity", 42, "A wide follower reach");
-  }
-  if (originals28d >= 20) {
-    add("optic", 50 + originals28d, `${originals28d} original posts in 28 days`);
+  if (originals28d >= 12) {
+    return { id: "optic", points: 50 + originals28d, because: `${originals28d} original posts in the read timeline` };
   }
   if (reposts28d >= 8) {
-    add("kinetic", 45 + reposts28d, `${reposts28d} reposts in 28 days`);
+    return { id: "kinetic", points: 45 + reposts28d, because: `${reposts28d} reposts in 28 days` };
   }
   if (likesGiven != null && likesGiven >= 25) {
-    add("strength", 40 + Math.min(likesGiven, 40), `${likesGiven} likes given in the recent sample`);
+    return {
+      id: "strength",
+      points: 40 + Math.min(likesGiven, 40),
+      because: `${likesGiven} likes given in the recent sample`,
+    };
   }
   if (avgRepostsReceived >= 8) {
-    add("telepathy", 60, "Original posts are heavily reposted");
+    return { id: "telepathy", points: 60, because: "Original posts are heavily reposted" };
+  }
+  if (following > 0 && ratio >= 10) {
+    return { id: "magnetism", points: 80, because: "Followers are at least 10× following" };
   }
   if (replies28d >= 6 && replies28d > originals28d * 1.5) {
-    add("teleport", 60 + replies28d, "Replies far outnumber original posts");
+    return { id: "teleport", points: 60 + replies28d, because: "Replies far outnumber original posts" };
   }
+  if (quotes28d >= 2 && quotes28d > originals28d) {
+    return { id: "illusions", points: 65 + quotes28d, because: "Quote posts outnumber original posts" };
+  }
+
+  // Dash-trigger rows: keep existing thresholds only; no new numeric bands.
   if (
-    replies28d >= 6 &&
+    replies28d >= 4 &&
     replies28d > originals28d &&
     replies28d <= originals28d * 1.5
   ) {
-    add("bite", 55 + replies28d, "Replies lead, without disappearing under the post");
-  }
-  if (quotes28d >= 4 && quotes28d > originals28d) {
-    add("illusions", 65 + quotes28d, "Quote posts outnumber original posts");
+    return { id: "bite", points: 55 + replies28d, because: "Replies lead, without disappearing under the post" };
   }
   if (posts28d > 3 && replies28d <= 1 && originals28d >= 2 && originals28d < 20) {
-    add("shield", 36, "Posts in public while staying out of reply threads");
+    return { id: "shield", points: 36, because: "Posts in public while staying out of reply threads" };
+  }
+  if (followers >= 2500 && (ratio == null || ratio < 10)) {
+    return { id: "elasticity", points: 42, because: "A wide follower reach" };
   }
   if (followers >= 1000 && originals28d >= 8 && originals28d < 20) {
-    add("mjolnir", 34, "A visible audience and a steady run of posts");
-  }
-  if (originals28d >= 4 && originals28d < 20 && replies28d <= originals28d) {
-    add("water", 28, "A steady cadence of original posts");
+    return { id: "mjolnir", points: 34, because: "A visible audience and a steady run of posts" };
   }
   if (avgLikes >= 25) {
-    add("pyro", 38, "Original posts draw a flare of likes");
+    return { id: "pyro", points: 38, because: "Original posts draw a flare of likes" };
   }
-  add("serum", 15, "No single behavior dominates");
-
-  scored.sort((a, b) => b.points - a.points);
-  return scored[0];
+  if (originals28d >= 4 && originals28d < 20 && replies28d <= originals28d) {
+    return { id: "water", points: 28, because: "A steady cadence of original posts" };
+  }
+  return { id: "serum", points: 15, because: "No single behavior dominates" };
 }
 
-function pickPowerCharacter(power, fandom) {
+function pickPowerCharacter(power, fandom, profile) {
+  if (power.id === "phasing") {
+    return fandom?.id === "ghost" ? "ghost" : "invisible-woman";
+  }
+  if (power.id === "strength") {
+    if (fandom && power.characters.includes(fandom.id)) return fandom.id;
+    const text = `${profile?.description ?? ""} ${(profile?.posts ?? []).map((p) => p.text).join(" ")}`.toLowerCase();
+    if (/\b(book|books|read|reading|scientist|lab|library|scholar|phd|study|studying)\b/.test(text)) {
+      return "beast";
+    }
+    if (/\b(warrior|fight|fighting|loud|roar|jabari|war)\b/.test(text)) {
+      return "mbaku";
+    }
+    return "the-thing";
+  }
   if (fandom && power.characters.includes(fandom.id)) return fandom.id;
   if (fandom) {
     const sameFranchise = power.characters.find(
@@ -113,15 +127,8 @@ function pickPowerCharacter(power, fandom) {
   return power.characters[0];
 }
 
-function templateCopy(username, percentile, fandomName, powerName, alchemyName) {
-  const fandomLine = fandomName
-    ? `Top fandom: ${fandomName}.`
-    : "Not enough MCU signal for a fandom yet.";
-  const band =
-    percentile === "Outside Top 50%"
-      ? "outside the top half of MCU fans"
-      : `in the ${percentile} of MCU fans`;
-  const copy = `@${username} Your X timeline puts you ${band}. ${fandomLine} X superpower: ${powerName}. Alchemy: ${alchemyName}.`;
+function templateCopy(username) {
+  const copy = `@${username} The Authority read your timeline. Swipe the carousel for your diehard rank, top fandom, X superpower, and alchemy.`;
   return copy.length <= 280 ? copy : copy.slice(0, 277) + "...";
 }
 
@@ -167,34 +174,55 @@ async function grokCopy(payload, fallback) {
   }
 }
 
-export async function analyzeProfile(profile) {
+export function assignCategories(profile) {
   const signals = extractSignals(profile);
   const fandom = pickFandom(signals.scores);
   const picked = scoreSuperpower(signals.behavior);
+  if (!picked) return { signals, fandom, picked: null, power: null, character: null, partner: null, alchemy: null };
   const power = SUPERPOWER_BY_ID[picked.id];
-  const characterId = pickPowerCharacter(power, fandom);
+  const characterId = pickPowerCharacter(power, fandom, profile);
   const character = CHARACTERS[characterId];
   const alchemy = ALCHEMY[characterId];
   const partner = CHARACTERS[alchemy.partnerId];
+  return { signals, fandom, picked, power, character, partner, alchemy, profile };
+}
+
+function withFandom(assigned, fandom) {
+  if (!fandom || !assigned.picked) return { ...assigned, fandom };
+  const characterId = pickPowerCharacter(assigned.power, fandom, assigned.profile);
+  const character = CHARACTERS[characterId];
+  const alchemy = ALCHEMY[characterId];
+  const partner = CHARACTERS[alchemy.partnerId];
+  return { ...assigned, fandom, character, partner, alchemy };
+}
+
+export function withJudgedFandom(assigned, judged) {
+  if (!judged?.viaGrok && judged?.grokStatus !== "default") return assigned;
+  return withFandom(assigned, judged.fandom);
+}
+
+export async function analyzeProfile(profile) {
+  let { signals, fandom, picked, power, character, partner, alchemy } = assignCategories(profile);
+  const judged = await classifyFandom(profile, fandom);
+  if (judged.viaGrok || judged.grokStatus === "default") {
+    ({ fandom, character, partner, alchemy } = withFandom(
+      { picked, power, character, partner, alchemy, profile },
+      judged.fandom,
+    ));
+  }
 
   const fandomName = fandom?.name ?? null;
-  const copy = templateCopy(
-    profile.username,
-    signals.percentile,
-    fandomName,
-    power.name,
-    partner.name,
-  );
+  const copy = templateCopy(profile.username);
   const flavor = await grokCopy(
     {
       username: profile.username,
       percentile: signals.percentile,
       fandom: fandomName,
-      superpower: power.name,
-      alchemy: partner.name,
+      superpower: power?.ability ?? power?.name ?? null,
+      alchemy: partner?.name ?? null,
       evidence: {
         fandomTerms: fandom?.evidence ?? [],
-        superpowerBecause: picked.because,
+        superpowerBecause: picked?.because ?? null,
       },
     },
     copy,
@@ -206,7 +234,7 @@ export async function analyzeProfile(profile) {
     profileImageUrl: profile.profileImageUrl ?? null,
     percentile: signals.percentile,
     percentileNote:
-      "Demo curve. Production ranks this blended score against the baseline audience.",
+      "Ranked against the 15,000 @MarvelStudios opt-in baseline (blended ≥ 0.25 / 0.1875 / 0.0625 / 1⁄48).",
     blended: Number(signals.blended.toFixed(3)),
     axes: {
       bio: signals.axesRaw.bio,
@@ -221,23 +249,58 @@ export async function analyzeProfile(profile) {
           franchise: fandom.franchiseName,
           evidence: fandom.evidence,
           viaFranchise: Boolean(fandom.viaFranchise),
+          viaGrok: Boolean(fandom.viaGrok),
         }
       : null,
-    superpower: {
-      name: power.name,
-      ability: power.ability,
-      means: power.means,
-      character: character.name,
-      because: picked.because,
-      status: power.status,
-    },
-    alchemy: {
-      name: partner.name,
-      reason: alchemy.reason,
-    },
+    superpower: power
+      ? {
+          name: power.name,
+          ability: power.ability,
+          means: power.means,
+          character: character.name,
+          because: picked.because,
+          status: power.status,
+        }
+      : null,
+    alchemy: partner
+      ? {
+          name: partner.name,
+          reason: alchemy.reason,
+        }
+      : null,
     postCopy: flavor.text,
     copySource: flavor.source,
     shareText: flavor.text,
+    slides: [
+      {
+        id: "diehard",
+        label: "Diehard",
+        title: signals.percentile,
+        body: "Ranked against the 15,000-follower opt-in baseline from bio keywords, follows, post keywords, and MCU reposts.",
+      },
+      {
+        id: "fandom",
+        label: "Top fandom",
+        title: fandomName ?? "Unranked",
+        body: fandom
+          ? `${fandom.franchiseName}${fandom.viaGrok ? ", from the rest of the profile" : ""}${fandom.evidence?.length ? ". " + fandom.evidence.join(", ") : ""}`
+          : "Not enough MCU signal yet.",
+      },
+      {
+        id: "superpower",
+        label: "X superpower",
+        title: power?.ability ?? power?.name ?? "Unscored",
+        body: power
+          ? `${power.means}. ${picked.because}.`
+          : "Not enough behavior signal for a superpower.",
+      },
+      {
+        id: "alchemy",
+        label: "Alchemy",
+        title: partner?.name ?? "Unscored",
+        body: alchemy?.reason ?? "Alchemy waits for a superpower.",
+      },
+    ],
     postsRead: signals.postsRead,
     followsRead: signals.followsRead,
     followsUnavailable: Boolean(profile.followsUnavailable),
@@ -245,8 +308,8 @@ export async function analyzeProfile(profile) {
     profileHistoryUnavailable: profile.profileUpdatedWeekOverWeek == null,
     source: profile.source || "live",
     media: {
-      mode: "composition",
-      note: "Composed card. Production renders this with Shotstack from brand artwork plus these four fields. No image is generated.",
+      mode: "carousel",
+      note: "One reply. Four composed slides, one category each. Shotstack in production. No image is generated.",
     },
   };
 }

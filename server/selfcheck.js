@@ -6,8 +6,8 @@ for (const sample of SAMPLES) {
   const result = await analyzeProfile(sampleProfile(sample.id));
   const got = {
     fandom: result.fandom?.name ?? null,
-    power: result.superpower.name,
-    alchemy: result.alchemy.name,
+    power: result.superpower?.name ?? null,
+    alchemy: result.alchemy?.name ?? null,
     percentile: result.percentile,
   };
   const ok =

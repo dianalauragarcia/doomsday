@@ -3,13 +3,48 @@
  * Avengers: Doomsday Fan Variance Authority brief.
  *
  * Handles stored without @, lowercase.
- * MCU-wide handles and keywords raise the diehard score and do not
- * assign a fandom by themselves.
+ * MCU-wide keywords raise the diehard score and do not assign a fandom
+ * by themselves. Studio and cast handles assign a category.
  */
 
-export const WIDE_HANDLES = ["marvel", "marvelstudios"];
+export const WIDE_HANDLES = [];
 
 export const WIDE_KEYWORDS = ["mcu", "marvel cinematic universe"];
+
+export const EXTRA_FRANCHISE_HANDLES = {
+  avengers: ["marvel", "marvelstudios", "marvelbr", "marvellatam", "mcu_direct", "marvel_updat3s"],
+};
+
+export const CHARACTER_HANDLES = {
+  thor: ["chrishemsworth"],
+  loki: ["twhiddleston"],
+  "steve-rogers": ["chrisevans"],
+  "sam-wilson": ["anthonymackie"],
+  "ant-man": ["paulrudd"],
+  "doctor-strange": ["benedictcumberbatch"],
+  "shang-chi": ["simuliu"],
+  shuri: ["letitiawright"],
+  "winter-soldier": ["sebastianstan"],
+  yelena: ["florencepugh"],
+  "invisible-woman": ["vanessakirby"],
+  "spider-man": ["spiderman", "spidermanmovie", "tomholland1996", "zendaya"],
+  "iron-man": ["iron_man", "robertdowneyjr"],
+  hulk: ["markruffalo"],
+  hawkeye: ["jeremyrenner"],
+  "captain-marvel": ["captainmarvel", "brielarson"],
+  "ms-marvel": ["msmarvel"],
+  "kate-bishop": ["haileesteinfeld"],
+  wolverine: ["realhughjackman", "wolverinemovie"],
+  deadpool: ["vancityreynolds", "deadpool", "deadpoolmovie"],
+  thanos: ["joshbrolin"],
+  tchalla: ["chadwickboseman"],
+  okoye: ["danaigurira"],
+  gamora: ["zoesaldana"],
+  nebula: ["karengillan"],
+  mantis: ["pomklementieff"],
+};
+
+export const NAMED_HANDLES = [];
 
 export const FRANCHISES = [
   {
@@ -20,10 +55,6 @@ export const FRANCHISES = [
       "fantastic four",
       "fantastic 4",
       "the fantastic four: first steps",
-      "galactus",
-      "silver surfer",
-      "shalla-bal",
-      "shalla bal",
       "baxter building",
       "franklin richards",
       "valeria richards",
@@ -61,6 +92,11 @@ export const FRANCHISES = [
         name: "H.E.R.B.I.E.",
         keywords: ["h.e.r.b.i.e.", "h.e.r.b.i.e", "herbie"],
       },
+      {
+        id: "silver-surfer",
+        name: "Silver Surfer",
+        keywords: ["silver surfer", "shalla-bal", "shalla bal", "norrin radd"],
+      },
     ],
   },
   {
@@ -70,19 +106,12 @@ export const FRANCHISES = [
     keywords: [
       "wakanda",
       "talokan",
-      "okoye",
-      "nakia",
       "ramonda",
       "queen ramonda",
-      "killmonger",
       "everett ross",
-      "riri williams",
-      "ironheart",
       "dora milaje",
       "vibranium",
       "wakanda forever",
-      "t'challa",
-      "t’challa",
     ],
     characters: [
       {
@@ -98,6 +127,23 @@ export const FRANCHISES = [
       { id: "namor", name: "Namor", keywords: ["namor"] },
       { id: "namora", name: "Namora", keywords: ["namora"] },
       { id: "attuma", name: "Attuma", keywords: ["attuma"] },
+      {
+        id: "tchalla",
+        name: "Black Panther (T'Challa)",
+        keywords: ["t'challa", "t’challa", "tchalla"],
+      },
+      { id: "okoye", name: "Okoye", keywords: ["okoye"] },
+      { id: "nakia", name: "Nakia", keywords: ["nakia"] },
+      {
+        id: "killmonger",
+        name: "Killmonger",
+        keywords: ["killmonger", "erik killmonger", "n'jadaka", "n’jadaka"],
+      },
+      {
+        id: "ironheart",
+        name: "Ironheart",
+        keywords: ["riri williams", "ironheart"],
+      },
     ],
   },
   {
@@ -112,22 +158,6 @@ export const FRANCHISES = [
       "avengers doomsday",
       "avengers: doomsday",
       "avengers endgame",
-      "tony stark",
-      "iron man",
-      "bruce banner",
-      "hulk",
-      "natasha romanoff",
-      "black widow",
-      "clint barton",
-      "hawkeye",
-      "wanda maximoff",
-      "scarlet witch",
-      "carol danvers",
-      "captain marvel",
-      "peter parker",
-      "spider-man",
-      "spider man",
-      "i love you 3000",
     ],
     characters: [
       {
@@ -158,15 +188,115 @@ export const FRANCHISES = [
       {
         id: "doctor-strange",
         name: "Doctor Strange",
-        keywords: ["doctor strange", "stephen strange"],
+        keywords: ["doctor strange", "stephen strange", "doctor stephen strange"],
       },
+      {
+        id: "spider-man",
+        name: "Spider-Man",
+        keywords: ["peter parker", "spider-man", "spider man", "spiderman", "spider-verse", "spider verse"],
+      },
+      {
+        id: "iron-man",
+        name: "Iron Man",
+        keywords: ["tony stark", "iron man", "ironman", "i love you 3000"],
+      },
+      {
+        id: "hulk",
+        name: "Hulk",
+        keywords: ["bruce banner", "the hulk", "hulk smash", "hulk"],
+      },
+      {
+        id: "black-widow",
+        name: "Black Widow",
+        keywords: ["natasha romanoff", "natasha romanov", "black widow"],
+      },
+      {
+        id: "hawkeye",
+        name: "Hawkeye",
+        keywords: ["clint barton", "hawkeye"],
+      },
+      {
+        id: "scarlet-witch",
+        name: "Scarlet Witch",
+        keywords: ["wanda maximoff", "scarlet witch", "chaos magic"],
+      },
+      {
+        id: "captain-marvel",
+        name: "Captain Marvel",
+        keywords: ["carol danvers", "captain marvel", "higher further faster"],
+      },
+      {
+        id: "ms-marvel",
+        name: "Ms. Marvel",
+        keywords: ["kamala khan", "ms. marvel", "ms marvel"],
+      },
+      {
+        id: "kate-bishop",
+        name: "Hawkeye (Kate Bishop)",
+        keywords: ["kate bishop"],
+      },
+      {
+        id: "war-machine",
+        name: "War Machine",
+        keywords: ["james rhodes", "war machine", "rhodey"],
+      },
+      {
+        id: "vision",
+        name: "Vision",
+        keywords: ["the vision", "white vision", "wandavision"],
+      },
+      {
+        id: "wasp",
+        name: "The Wasp",
+        keywords: ["hope van dyne", "the wasp", "hope pym"],
+      },
+      {
+        id: "wong",
+        name: "Wong",
+        keywords: ["wong", "kamar-taj"],
+      },
+      {
+        id: "valkyrie",
+        name: "Valkyrie",
+        keywords: ["valkyrie", "king valkyrie", "brunnhilde"],
+      },
+      { id: "nick-fury", name: "Nick Fury", keywords: ["nick fury"] },
+      {
+        id: "daredevil",
+        name: "Daredevil",
+        keywords: ["daredevil", "matt murdock", "devil of hell's kitchen", "devil of hell’s kitchen"],
+      },
+      {
+        id: "she-hulk",
+        name: "She-Hulk",
+        keywords: ["she-hulk", "she hulk", "jennifer walters"],
+      },
+      {
+        id: "moon-knight",
+        name: "Moon Knight",
+        keywords: ["moon knight", "marc spector", "jake lockley", "mr. knight"],
+      },
+      { id: "jessica-jones", name: "Jessica Jones", keywords: ["jessica jones"] },
+      { id: "luke-cage", name: "Luke Cage", keywords: ["luke cage"] },
+      {
+        id: "punisher",
+        name: "The Punisher",
+        keywords: ["the punisher", "frank castle", "punisher"],
+      },
+      { id: "echo", name: "Echo", keywords: ["maya lopez"] },
+      {
+        id: "agatha",
+        name: "Agatha Harkness",
+        keywords: ["agatha harkness", "agatha all along"],
+      },
+      { id: "america-chavez", name: "America Chavez", keywords: ["america chavez"] },
     ],
   },
   {
     id: "misc",
     name: "Misc",
     handles: ["lokiofficial", "shangchi"],
-    keywords: ["cassie lang", "peggy carter", "agent carter"],
+    keywords: [],
     characters: [
       {
         id: "shang-chi",
@@ -177,6 +307,16 @@ export const FRANCHISES = [
         id: "loki",
         name: "Loki",
         keywords: ["loki", "god of mischief"],
+      },
+      {
+        id: "peggy-carter",
+        name: "Peggy Carter",
+        keywords: ["peggy carter", "agent carter"],
+      },
+      {
+        id: "cassie-lang",
+        name: "Cassie Lang",
+        keywords: ["cassie lang", "stature"],
       },
     ],
   },
@@ -245,10 +385,6 @@ export const FRANCHISES = [
       "cerebro",
       "to me my x-men",
       "to me, my x-men",
-      "wolverine",
-      "jean grey",
-      "ororo munroe",
-      "deadpool",
     ],
     characters: [
       {
@@ -286,13 +422,33 @@ export const FRANCHISES = [
         name: "Nightcrawler",
         keywords: ["kurt wagner", "nightcrawler"],
       },
+      {
+        id: "wolverine",
+        name: "Wolverine",
+        keywords: ["wolverine", "james howlett", "logan", "adamantium"],
+      },
+      {
+        id: "deadpool",
+        name: "Deadpool",
+        keywords: ["deadpool", "wade wilson", "merc with a mouth"],
+      },
+      {
+        id: "jean-grey",
+        name: "Jean Grey",
+        keywords: ["jean grey", "dark phoenix", "phoenix force"],
+      },
+      {
+        id: "storm",
+        name: "Storm",
+        keywords: ["ororo munroe", "ororo", "storm"],
+      },
     ],
   },
   {
     id: "villain",
     name: "Villain",
     handles: [],
-    keywords: ["sentinels", "thanos", "ultron", "red skull", "zemo"],
+    keywords: ["sentinels"],
     characters: [
       {
         id: "doctor-doom",
@@ -305,6 +461,43 @@ export const FRANCHISES = [
           "i am doom",
         ],
       },
+      { id: "thanos", name: "Thanos", keywords: ["thanos", "the mad titan"] },
+      { id: "ultron", name: "Ultron", keywords: ["ultron"] },
+      {
+        id: "red-skull",
+        name: "Red Skull",
+        keywords: ["red skull", "johann schmidt"],
+      },
+      {
+        id: "zemo",
+        name: "Baron Zemo",
+        keywords: ["baron zemo", "helmut zemo", "zemo"],
+      },
+      { id: "galactus", name: "Galactus", keywords: ["galactus"] },
+    ],
+  },
+  {
+    id: "guardians",
+    name: "Guardians of the Galaxy",
+    handles: [],
+    keywords: ["guardians of the galaxy", "gotg"],
+    characters: [
+      {
+        id: "star-lord",
+        name: "Star-Lord",
+        keywords: ["star-lord", "star lord", "peter quill"],
+      },
+      { id: "gamora", name: "Gamora", keywords: ["gamora"] },
+      { id: "nebula", name: "Nebula", keywords: ["nebula"] },
+      { id: "mantis", name: "Mantis", keywords: ["mantis"] },
+      { id: "drax", name: "Drax", keywords: ["drax the destroyer", "drax"] },
+      {
+        id: "rocket",
+        name: "Rocket",
+        keywords: ["rocket raccoon", "trash panda"],
+      },
+      { id: "groot", name: "Groot", keywords: ["i am groot", "groot"] },
+      { id: "adam-warlock", name: "Adam Warlock", keywords: ["adam warlock"] },
     ],
   },
 ];
@@ -661,12 +854,19 @@ export const SUPERPOWER_BY_ID = Object.fromEntries(
   SUPERPOWERS.map((power) => [power.id, power]),
 );
 
-/** Demo curve only. Production replaces this with rank vs. the baseline audience. */
+/**
+ * Empirical diehard bands from the 15,000 @MarvelStudios opt-in baseline
+ * (blended scores recomputed on users.json + follows + tweets; cohort file
+ * grok-15k-before-report.jsonl). Rank cutoffs at 750 / 1500 / 3750 / 7500.
+ * The score at rank 7500 is 0 (9,521 profiles have no MCU signal), so Top 50%
+ * uses the smallest positive blended score (one keyword-post axis unit = 1/48)
+ * and Outside Top 50% means blended below that floor.
+ */
 export const PERCENTILE_BANDS = [
-  { min: 0.72, label: "Top 5%" },
-  { min: 0.48, label: "Top 10%" },
-  { min: 0.28, label: "Top 25%" },
-  { min: 0.12, label: "Top 50%" },
+  { min: 0.25, label: "Top 5%" },
+  { min: 0.1875, label: "Top 10%" },
+  { min: 0.0625, label: "Top 25%" },
+  { min: 1 / 48, label: "Top 50%" },
 ];
 
 export const AXIS_CAPS = { bio: 3, follows: 4, posts: 12, reposts: 8 };
