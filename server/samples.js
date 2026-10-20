@@ -118,7 +118,7 @@ export const SAMPLES = [
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 3, daysAgo: 5, text: "Gambit and the X-Men." },
-        { n: 12, daysAgo: 2, kind: "repost", text: "RT @xmenmovies: Gambit. To me my X-Men." },
+        { n: 18, daysAgo: 2, kind: "repost", text: "RT @xmenmovies: Gambit. To me my X-Men." },
       ]),
     },
   },

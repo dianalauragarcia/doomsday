@@ -126,7 +126,7 @@ Assign from usage behavior, not from favorite hero.
 One power per person. First matching row wins.
 
 POWER TABLE (follow this table, do not rewrite it)
-First matching row with a clear trigger wins. Note the order: Superhuman strength (likesGiven >= 5000) comes right after Intangibility or Phasing, so a heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
+First matching row with a clear trigger wins. Order for the numeric rows: Intangibility or Phasing, Superhuman strength (likesGiven >= 5000), Illusions, Pym Particles, Shapeshifting, Optic Blasts, Kinetic Energy Charging, Telepathy, Magnetism Manipulation, Teleportation. A heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
 
 - trigger: Posts in last 28 days == 0 or ≈ 0
   meaning: You’re lurking in the shadows undetected
@@ -140,12 +140,17 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   id: superhuman-strength
   character: beast or mbaku or the-thing
   (beast if bookish, mbaku if loud warrior, the-thing if blunt; default the-thing)
-- trigger: Very few posts, then a burst / quiet until they show up
+- trigger: Quotes >> originals (2 or more quotes in 28 days, and more quotes than original posts)
+  meaning: You reframe someone else's posts
+  power: Illusions
+  id: illusions
+  character: loki
+- trigger: 1 to 3 posts in 28 days, under 3 reposts, under 2 quotes
   meaning: You move undetected until it’s time to strike
   power: Pym Particles (Shrinking)
   id: pym-particles
   character: ant-man
-- trigger: Week-over-week profile updates (bio, name, or avatar keeps changing)
+- trigger: Week-over-week profile updates (name, bio, or avatar changed at least once in the last 7 days)
   meaning: You’re always changing who you are or perceive to be
   power: Shapeshifting
   id: shapeshifting
@@ -155,12 +160,12 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   power: Vibranium Shield
   id: vibranium-shield
   character: shuri
-- trigger: Lots of posts
+- trigger: Lots of posts (10 or more original posts in 28 days)
   meaning: You’re not afraid to fire at will
   power: Optic Blasts
   id: optic-blasts
   character: cyclops
-- trigger: Lots of reposts
+- trigger: Lots of reposts (15 or more reposts in 28 days)
   meaning: You add a supercharge to what others are putting out there
   power: Kinetic Energy Charging
   id: kinetic-energy-charging
@@ -180,12 +185,12 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   power: Mjolnir
   id: mjolnir
   character: thor
-- trigger: Lots of reposted content
+- trigger: Lots of reposted content (3 or more reposts, and reposts are 50% or more of posts plus reposts)
   meaning: You’re posting the words that people are already thinking
   power: Telepathy
   id: telepathy
   character: professor-x
-  (use avgRepostsReceived / raw repost volume with little added text)
+  (mostly resharing other people's posts; Lots of reposts above is raw volume)
 - trigger: —
   meaning: —
   power: Super-intelligence
@@ -196,7 +201,7 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   power: Sorcery
   id: sorcery
   character: doctor-strange
-- trigger: Followers / following ≥ 10
+- trigger: Followers / following ≥ 2 (with at least 50 followers)
   meaning: You attract others
   power: Magnetism Manipulation
   id: magnetism-manipulation
@@ -206,7 +211,7 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   power: Elasticity
   id: elasticity
   character: mister-fantastic
-- trigger: Replies >> originals
+- trigger: Replies >> originals (6 or more replies in 28 days, and more replies than original posts)
   meaning: You live “under” the main conversation or post
   power: Teleportation or shrinking
   id: teleportation
@@ -226,11 +231,6 @@ First matching row with a clear trigger wins. Note the order: Superhuman strengt
   power: Aerial Combat
   id: aerial-combat
   character: falcon
-- trigger: Quotes >> originals
-  meaning: You reframe someone else's posts
-  power: Illusions
-  id: illusions
-  character: loki
 - trigger: —
   meaning: You know how to light a fire…
   power: Pyrokinesis

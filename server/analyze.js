@@ -24,9 +24,22 @@ function readPrompt() {
 
 const SYSTEM_PROMPT = readPrompt();
 
-// public_metrics.like_count is a lifetime total. 5,000+ is the top ~10% of the 15k opt-in cohort.
-const LIKES_STRENGTH_MIN = 5000;
+// Superpower thresholds, calibrated on the 15,000 opt-in cohort (Oct 20, 2026).
+// Windows are 28 days. public_metrics.like_count is a lifetime total: 5,000+ is the top ~10%.
+export const POWER_RULES = {
+  likesGiven: 5000,
+  illusionsQuotes: 2,
+  opticOriginals: 10,
+  kineticReposts: 15,
+  telepathyReposts: 3,
+  telepathyShare: 0.5,
+  magnetismRatio: 2,
+  magnetismMinFollowers: 50,
+  teleportReplies: 6,
+};
 
+// First matching row wins. Order: Phasing, Strength, Illusions, Pym, Shapeshifting, Optic,
+// Kinetic, Telepathy, Magnetism, Teleportation, then the proxy rows, then the Serum floor.
 function scoreSuperpower(behavior) {
   const {
     posts28d,
@@ -35,53 +48,58 @@ function scoreSuperpower(behavior) {
     quotes28d,
     reposts28d,
     avgLikes,
-    avgRepostsReceived,
     followers,
     following,
     ratio,
     likesGiven,
     profileUpdatedWeekOverWeek,
   } = behavior;
+  const R = POWER_RULES;
 
-  // First matching clear trigger wins (order matches the judge POWER TABLE).
   if (posts28d === 0 && reposts28d === 0) {
     return { id: "phasing", points: 100, because: "No posts or reposts in the last 28 days" };
   }
   // Right after Phasing on purpose: a lifetime like count says nothing about posting, so a
   // later slot lets Kinetic/Optic/Pym absorb most heavy likers (197 of 1,514 reached Strength).
-  if (likesGiven != null && likesGiven >= LIKES_STRENGTH_MIN) {
+  if (likesGiven != null && likesGiven >= R.likesGiven) {
     return {
       id: "strength",
       points: 40 + Math.min(Math.floor(likesGiven / 1000), 40),
       because: `${likesGiven.toLocaleString("en-US")} total likes given (public like count)`,
     };
   }
+  // Quoting is rare and distinct, so it sits high; later it would be absorbed by reply/repost rows.
+  if (quotes28d >= R.illusionsQuotes && quotes28d > originals28d) {
+    return { id: "illusions", points: 65 + quotes28d, because: `${quotes28d} quote posts, more than ${originals28d} original posts` };
+  }
   if (posts28d >= 1 && posts28d <= 3 && reposts28d < 3 && quotes28d < 2) {
     return { id: "pym", points: 26, because: "Only a few posts, then silence" };
   }
   if (profileUpdatedWeekOverWeek === true) {
-    return { id: "shapeshift", points: 85, because: "Profile changed week over week" };
+    return { id: "shapeshift", points: 85, because: "Name, bio, or avatar changed in the last 7 days" };
   }
-  if (originals28d >= 12) {
-    return { id: "optic", points: 50 + originals28d, because: `${originals28d} original posts in the read timeline` };
+  if (originals28d >= R.opticOriginals) {
+    return { id: "optic", points: 50 + originals28d, because: `${originals28d} original posts in 28 days` };
   }
-  if (reposts28d >= 8) {
+  if (reposts28d >= R.kineticReposts) {
     return { id: "kinetic", points: 45 + reposts28d, because: `${reposts28d} reposts in 28 days` };
   }
-  if (avgRepostsReceived >= 8) {
-    return { id: "telepathy", points: 60, because: "Original posts are heavily reposted" };
+  const repostShare = reposts28d / (posts28d + reposts28d);
+  if (reposts28d >= R.telepathyReposts && repostShare >= R.telepathyShare) {
+    return {
+      id: "telepathy",
+      points: 60,
+      because: `${Math.round(repostShare * 100)}% of your activity is reposting other people's posts`,
+    };
   }
-  if (following > 0 && ratio >= 10) {
-    return { id: "magnetism", points: 80, because: "Followers are at least 10× following" };
+  if (following > 0 && followers >= R.magnetismMinFollowers && ratio >= R.magnetismRatio) {
+    return { id: "magnetism", points: 80, because: "At least twice as many followers as accounts followed" };
   }
-  if (replies28d >= 6 && replies28d > originals28d * 1.5) {
-    return { id: "teleport", points: 60 + replies28d, because: "Replies far outnumber original posts" };
-  }
-  if (quotes28d >= 2 && quotes28d > originals28d) {
-    return { id: "illusions", points: 65 + quotes28d, because: "Quote posts outnumber original posts" };
+  if (replies28d >= R.teleportReplies && replies28d > originals28d) {
+    return { id: "teleport", points: 60 + replies28d, because: `${replies28d} replies, more than ${originals28d} original posts` };
   }
 
-  // Dash-trigger rows: keep existing thresholds only; no new numeric bands.
+  // Proxy rows (no number in the brief): existing soft triggers, unchanged.
   if (
     replies28d >= 4 &&
     replies28d > originals28d &&
