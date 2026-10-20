@@ -24,6 +24,9 @@ function readPrompt() {
 
 const SYSTEM_PROMPT = readPrompt();
 
+// public_metrics.like_count is a lifetime total. 5,000+ is the top ~10% of the 15k opt-in cohort.
+const LIKES_STRENGTH_MIN = 5000;
+
 function scoreSuperpower(behavior) {
   const {
     posts28d,
@@ -56,11 +59,11 @@ function scoreSuperpower(behavior) {
   if (reposts28d >= 8) {
     return { id: "kinetic", points: 45 + reposts28d, because: `${reposts28d} reposts in 28 days` };
   }
-  if (likesGiven != null && likesGiven >= 25) {
+  if (likesGiven != null && likesGiven >= LIKES_STRENGTH_MIN) {
     return {
       id: "strength",
-      points: 40 + Math.min(likesGiven, 40),
-      because: `${likesGiven} likes given in the recent sample`,
+      points: 40 + Math.min(Math.floor(likesGiven / 1000), 40),
+      because: `${likesGiven.toLocaleString("en-US")} total likes given (public like count)`,
     };
   }
   if (avgRepostsReceived >= 8) {

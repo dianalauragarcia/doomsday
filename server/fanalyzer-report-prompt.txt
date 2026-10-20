@@ -24,12 +24,13 @@ doctor-doom, thanos, ultron, red-skull, zemo, star-lord, gamora, nebula, mantis,
 SIGNALS
 - follows of character accounts and movie accounts
 - keywords in bio
-- keywords in the last 200 posts
+- keywords in the last 100 posts
 - number of MCU reposts
 - usage behavior from the X Superpower table (see the behavior object on each profile)
 Behavior fields on each profile (use these for superpower):
 posts28d, originals28d, replies28d, quotes28d, reposts28d, avgLikes, avgRepostsReceived,
 followers, following, followerFollowingRatio, likesGiven, profileUpdatedWeekOverWeek
+likesGiven is the account's public lifetime total of likes it has given (public_metrics.like_count), or null when unknown. Likes are private, so you never see which posts they liked.
 Do not quote a specific post in the reason if you can quote a bio, handle, follow, or behavior instead. Many MCU fans lurk and do not post.
 
 1) DIEHARD
@@ -102,7 +103,7 @@ MISC
 Handles: @LokiOfficial, @shangchi, @Marvel, @MarvelStudios
 Characters: shang-chi, loki
 Keywords: Loki, Cassie Lang, Shang-Chi, Peggy Carter, God of Mischief, Xu Shang-Chi, Master of the Ten Rings, Agent Carter, MCU, Marvel Cinematic Universe
-Generic MCU / @Marvel / @MarvelStudios alone is diehard signal, not a topFandom.
+Generic MCU / @Marvel / @MarvelStudios always counts toward diehard. With no named hero it is not a specific hero signal, so apply FORCED MATCH: map generic Marvel fandom to steve-rogers (see the life map).
 
 THUNDERBOLTS
 Handles: none
@@ -169,7 +170,7 @@ First matching row with a clear trigger wins. Rows with trigger "—" have no fi
   power: Water Skills
   id: water-skills
   character: namor or namora or attuma
-- trigger: Lots of likes
+- trigger: Lots of likes (likesGiven >= 5000)
   meaning: You’re unafraid to smash that like button
   power: Superhuman strength
   id: superhuman-strength
@@ -215,7 +216,7 @@ First matching row with a clear trigger wins. Rows with trigger "—" have no fi
   meaning: You aren’t afraid to clap back
   power: Widow’s Bite
   id: widows-bite
-  character: black-widow or yelena
+  character: yelena
 - trigger: —
   meaning: You aren’t afraid of a little “hand to hand” combat
   power: Martial Arts

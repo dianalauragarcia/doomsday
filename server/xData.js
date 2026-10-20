@@ -85,13 +85,9 @@ export async function fetchXProfile(username) {
     followsUnavailable = true;
   }
 
-  let likesGiven = null;
-  try {
-    const likes = await xFetch(`/users/${user.id}/liked_tweets?max_results=100`);
-    if (Array.isArray(likes.data)) likesGiven = likes.data.length;
-  } catch {
-    likesGiven = null;
-  }
+  // Likes are private on X, so /users/:id/liked_tweets only works for the signed-in user.
+  // The public user object still carries the lifetime total of likes the account has given.
+  const likesGiven = Number.isFinite(metrics?.like_count) ? metrics.like_count : null;
 
   return {
     username: user.username,
