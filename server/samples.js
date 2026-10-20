@@ -14,6 +14,7 @@ function posts(specs) {
   );
 }
 
+// likesGiven mirrors public_metrics.like_count: the lifetime total of likes the account has given.
 export const SAMPLES = [
   {
     id: "thor",
@@ -26,7 +27,7 @@ export const SAMPLES = [
       description: "God of Thunder. Earth's Mightiest Heroes.",
       publicMetrics: { followers: 900, following: 400, tweets: 2400 },
       follows: ["thorofficial", "Avengers", "CaptainAmerica"],
-      likesGiven: 4,
+      likesGiven: 1240,
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 22, daysAgo: 3, text: "Thor bringing the God of Thunder energy. Avengers forever." },
@@ -68,7 +69,7 @@ export const SAMPLES = [
       description: "God of Mischief.",
       publicMetrics: { followers: 300, following: 220, tweets: 800 },
       follows: ["LokiOfficial"],
-      likesGiven: 2,
+      likesGiven: 87,
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 2, daysAgo: 4, text: "Loki remains the God of Mischief." },
@@ -92,7 +93,7 @@ export const SAMPLES = [
       description: "Nightcrawler. To me my X-Men.",
       publicMetrics: { followers: 210, following: 190, tweets: 1500 },
       follows: ["xmenmovies"],
-      likesGiven: 3,
+      likesGiven: 860,
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 2, daysAgo: 6, text: "Kurt Wagner. Nightcrawler. To me my X-Men." },
@@ -116,7 +117,7 @@ export const SAMPLES = [
       description: "Gambit. Remy LeBeau.",
       publicMetrics: { followers: 640, following: 500, tweets: 3200 },
       follows: ["xmenmovies"],
-      likesGiven: 6,
+      likesGiven: 2210,
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 3, daysAgo: 5, text: "Gambit and the X-Men." },
@@ -140,7 +141,7 @@ export const SAMPLES = [
       description: "Magneto. Erik Lehnsherr.",
       publicMetrics: { followers: 5000, following: 200, tweets: 900 },
       follows: ["xmenmovies"],
-      likesGiven: 1,
+      likesGiven: 64,
       profileUpdatedWeekOverWeek: false,
       posts: posts([{ n: 5, daysAgo: 4, text: "Magneto. Brotherhood of Mutants." }]),
     },
@@ -161,7 +162,7 @@ export const SAMPLES = [
       description: "I am Doom. Latveria.",
       publicMetrics: { followers: 420, following: 300, tweets: 700 },
       follows: ["MarvelStudios"],
-      likesGiven: 1,
+      likesGiven: 530,
       profileUpdatedWeekOverWeek: false,
       posts: posts([
         { n: 8, daysAgo: 3, text: "Doctor Doom. Victor Von Doom. Doombots on patrol." },
