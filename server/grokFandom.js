@@ -20,6 +20,9 @@ export function isEmptyProfile(profile) {
 const LIFE_WORD =
   /\b(student|study|studying|school|college|university|work|working|job|lavoro|engineer|advertising|music|song|band|anime|manga|game|gaming|gamer|football|soccer|basketball|gym|artist|draw|drawing|writer|writing|travel|traveling|travelling|wife|husband|mom|dad|blue|bread|cook|chef|nurse|teacher|player|fan|team|art|play|playing|guitar|piano|read|reading|book|books|movie|movies|film)\b/iu;
 
+const SUPPORTING_CAST =
+  /\b(karen page|foggy nelson|matt murdock|pepper potts|happy hogan|jane foster|darcy lewis|mj watson|aunt may|ned leeds|betty ross|wanda|peter quill|scott lang|hope van dyne|bucky|natasha|clint|tony stark|steve rogers|logan|wade wilson)\b/iu;
+
 function countItems(value, read) {
   if (typeof value === "number") return value;
   if (!Array.isArray(value)) return 0;
@@ -130,6 +133,11 @@ export function isThinGhostProfile(profile) {
     typeof handle === "string" ? handle : handle?.username || handle?.handle,
   );
   if (posts > 0 || follows > 0) return false;
+  if (!hasToken(profile?.description)) {
+    // Only a display name, no bio, posts, or follows: Ghost unless the name itself is a hero.
+    const name = String(profile?.name ?? "");
+    return !hasHero(name) && !SUPPORTING_CAST.test(name);
+  }
   return noiseBioKind(profile?.description) != null;
 }
 
@@ -225,7 +233,7 @@ export function categoryIdFor(fandom) {
   return null;
 }
 
-function profileBrief(profile, rulesFandom) {
+function profileBrief(profile, rulesFandom, mustPick = false) {
   const posts = (profile.posts ?? [])
     .map((post) => clip(post.text, 140))
     .filter(Boolean)
@@ -257,6 +265,12 @@ function profileBrief(profile, rulesFandom) {
       profileUpdatedWeekOverWeek: behavior.profileUpdatedWeekOverWeek,
     },
     deterministic: rulesId ? { categoryId: rulesId, name: rulesFandom.name } : null,
+    ...(mustPick
+      ? {
+          retry:
+            "Your previous answer was null. This profile is NOT blank. Apply FORCED MATCH and the ANALOGICAL LIFE MAP. Return a legal topFandom.categoryId at confidence 0.20-0.39 and quote the life token you used.",
+        }
+      : {}),
   };
 }
 
@@ -377,17 +391,38 @@ async function askWithRetry(content, maxTokens) {
   return asked;
 }
 
+function ghostBefore(profile, rulesFandom) {
+  if (rulesFandom) return null;
+  if (isEmptyProfile(profile)) return defaultDecision();
+  if (isThinGhostProfile(profile)) return thinGhostDecision();
+  return null;
+}
+
+function stillUnmatched(decision) {
+  return !decision.fandom && decision.grokStatus !== "default";
+}
+
+async function forcePick(profile, rulesFandom) {
+  const asked = await askWithRetry(profileBrief(profile, rulesFandom, true), 1400);
+  if (!asked?.ok) return null;
+  const decision = decide(rulesFandom, asked.parsed);
+  return decision.fandom ? decision : null;
+}
+
 export async function classifyFandom(profile, rulesFandom) {
-  if (!rulesFandom && isEmptyProfile(profile)) return defaultDecision();
+  const early = ghostBefore(profile, rulesFandom);
+  if (early) return early;
   const asked = await askWithRetry(profileBrief(profile, rulesFandom), 1400);
   if (!asked?.ok) {
     return { fandom: rulesFandom ?? null, viaGrok: false, grokStatus: asked?.status || "error", reason: "", confidence: null };
   }
-  return decide(rulesFandom, asked.parsed);
+  const decision = decide(rulesFandom, asked.parsed);
+  if (stillUnmatched(decision)) return (await forcePick(profile, rulesFandom)) ?? decision;
+  return decision;
 }
 
 export async function classifyMany(entries) {
-  const pending = entries.filter((entry) => entry.rulesFandom || !isEmptyProfile(entry.profile));
+  const pending = entries.filter((entry) => !ghostBefore(entry.profile, entry.rulesFandom));
   const payload = pending.map((entry) => ({
     id: entry.id,
     ...profileBrief(entry.profile, entry.rulesFandom),
@@ -402,12 +437,29 @@ export async function classifyMany(entries) {
     for (const entry of entries) singles.push(await classifyFandom(entry.profile, entry.rulesFandom));
     return singles;
   }
-  return entries.map((entry) => {
-    if (!entry.rulesFandom && isEmptyProfile(entry.profile)) return defaultDecision();
+  const first = entries.map((entry) => {
+    const early = ghostBefore(entry.profile, entry.rulesFandom);
+    if (early) return early;
     const item = byId.get(String(entry.id));
     if (!item) return { fandom: entry.rulesFandom ?? null, viaGrok: false, grokStatus: "missing", reason: "", confidence: null };
     return decide(entry.rulesFandom, item);
   });
+  const retry = [];
+  first.forEach((decision, index) => {
+    if (stillUnmatched(decision) && decision.grokStatus !== "error") retry.push(index);
+  });
+  const queue = [...retry];
+  const forced = new Map();
+  const runners = Array.from({ length: Math.min(4, queue.length) }, async () => {
+    while (queue.length) {
+      const index = queue.shift();
+      const entry = entries[index];
+      const picked = await forcePick(entry.profile, entry.rulesFandom);
+      if (picked) forced.set(index, picked);
+    }
+  });
+  await Promise.all(runners);
+  return first.map((decision, index) => forced.get(index) ?? decision);
 }
 
 export async function inferFandom(profile) {

@@ -46,7 +46,38 @@ Read posts, then display name/handle, then bio, then follows.
 Keep an input deterministic category if it still fits.
 Change it if the rest of the profile leans harder at a different legal id.
 If deterministic is null, pick the closest legal character from the life of the profile.
-Null only when there is nothing to lean on. Do not invent. Do not pick a hero because the profile is empty.
+
+FORCED MATCH (this overrides any urge to return null)
+Every profile you receive already has some data; blank and noise-only profiles are handled before you. So you MUST return a legal categoryId for EVERY profile.
+If there is ANY usable life token (sport, gym, music, band, anime, drama, game, Hogwarts house, art, job, school, study, fandom, aesthetic, vibe word, display-name word, follow, post topic, language or country cue), pick the closest legal character with the ANALOGICAL LIFE MAP below.
+"No MCU signal" is NOT a reason for null. Most people are not Marvel fans; map their life to a hero anyway.
+Weak analogical matches go at confidence 0.20–0.39. Stronger direct hero signals go higher. Never output confidence below 0.20 with a categoryId.
+Return categoryId null only if the entire payload (name, bio, posts, follows, deterministic) has no letter or number at all. Do not use ghost as the default; ghost is Ava Starr only.
+The reason must quote the life token you used, not say "no MCU signal".
+
+ANALOGICAL LIFE MAP (use when no hero is named)
+- Sports, gym, fitness, football, boxing, MMA, running, outdoors → captain-america style grit: steve-rogers (team/athlete), wolverine (fighter/combat), hulk (lifting/strength), thor (rugby/storm/outdoors), spider-man (parkour, skate, student athlete).
+- Music, bands, K-pop, J-rock, concerts, DJ, singing → star-lord (band/mixtape), gambit (charm/performer), loki (theatrical/dramatic), groot (chill/ambient).
+- Anime, manga, games, gaming, esports, Monster Hunter, cosplay, memes, geek culture → spider-man (young nerd fan), wolverine (hunting/fighting games), deadpool (meme/chaos), moon-knight (obsessive collector).
+- Art, drawing, design, fashion, photography, writing, stories, poetry → doctor-strange (craft/mystic), scarlet-witch (emotion/creative), mystique (costume/identity), daredevil (writer/law/senses).
+- School, study, student, science, tech, engineering, coding, cars, F1, business, finance, jobs → iron-man (builder/tech/business), spider-man (student grind), mister-fantastic (scientist), doctor-doom (ambition/power), beast (bookish).
+- Faith, family, parent, wife, husband, home, community, prayer, kindness → steve-rogers (values), sam-wilson (service), black-panther family: shuri/tchalla (royal/family), thor (family/duty).
+- Politics, news, activism, justice, law, protest → daredevil (justice), captain-america: steve-rogers, nick-fury (intel/news), magneto (rights/mutant cause).
+- Animals, nature, plants, food, cooking, coffee, travel, cats, dogs → groot (plants/chill), rocket (animals/scrappy), namor (sea/travel/water), thor (travel/sky).
+- Romance, fashion, beauty, aesthetic, flirty, party, nightlife → scarlet-witch (romance/emotion), gambit (charm), black-widow (glam/spy), loki (mischief).
+- Humor, memes, trolling, shitposts, "just chilling", "random thoughts", "nothing", bored → deadpool (humor/chaos), groot (low-effort chill), rocket (sarcasm).
+- Dark/edgy, gaming handles, gore, villains, power-hungry bios → doctor-doom, thanos, red-skull, punisher.
+- Language/country only (a flag, a city, Arabic/Hindi/Spanish/Japanese text with no other meaning) → pick the nearest by culture/vibe: e.g. shang-chi (East Asia), tchalla/shuri (Africa), spider-man (Latin America street/youth), thor (Nordic/Europe), wolverine (Canada), star-lord (US everyman).
+- Generic Marvel / #Avengers / #MCU / "Marvel fan" with no named hero → steve-rogers; #AvengersDoomsday or Doom as an event → doctor-doom.
+- Supporting cast names (Karen Page, Foggy, Pepper Potts, Happy Hogan, Jane Foster, Wanda, Darcy, etc.) → their lead hero.
+When two clusters fit, pick the one with the strongest, most specific token.
+
+Examples of forced match:
+- Bio "Just chilling" → groot, confidence 0.22.
+- Bio "student | Tokyo | anime" → spider-man, confidence 0.41.
+- Posts about Formula 1 and Mercedes → iron-man, confidence 0.58.
+- Bio "mom of 3, God first" → steve-rogers, confidence 0.30.
+- Bio only "Hi" with a Spanish post about football → wolverine, confidence 0.26.
 
 Monitored handles/keywords (use these first):
 
