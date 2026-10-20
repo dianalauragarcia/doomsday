@@ -148,7 +148,7 @@ export function resolvePowerId(raw) {
 
 // Grok may keep the code's superpower or replace it with a better-fitting table row.
 // Guardrail: Intangibility or Phasing is only ever for zero posts and zero reposts, both ways.
-function applyGrokPower(assigned, judged, behavior) {
+export function applyGrokPower(assigned, judged, behavior) {
   const id = resolvePowerId(judged?.powerId);
   if (!id || !assigned.picked || id === assigned.picked.id) return assigned;
   const zeroActivity = behavior.posts28d === 0 && behavior.reposts28d === 0;
