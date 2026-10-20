@@ -93,7 +93,7 @@ function render(result) {
     `${result.postsRead} posts read`,
     result.followsUnavailable ? "follows unavailable" : `${result.followsRead} follows read`,
     result.copySource === "grok" ? "reply written by Grok" : "reply from the template",
-    "one carousel, four slides",
+    "one carousel, three slides",
   ];
   document.querySelector("#meta").textContent = bits.join(" · ");
 }

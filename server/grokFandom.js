@@ -332,7 +332,6 @@ function sleep(ms) {
 function reportFrom(parsed) {
   const top = parsed?.topFandom && typeof parsed.topFandom === "object" ? parsed.topFandom : parsed ?? {};
   const power = parsed?.superpower && typeof parsed.superpower === "object" ? parsed.superpower : null;
-  const alchemy = parsed?.alchemy && typeof parsed.alchemy === "object" ? parsed.alchemy : null;
   const diehard = parsed?.diehard && typeof parsed.diehard === "object" ? parsed.diehard : null;
   const score = Number(diehard?.score);
   return {
@@ -348,9 +347,6 @@ function reportFrom(parsed) {
     powerCharacter: power?.character ?? null,
     powerMeaning: power?.meaning ?? null,
     powerReason: clip(power?.reason, 400),
-    alchemyId: alchemy?.categoryId ?? null,
-    alchemyLabel: alchemy?.label ?? null,
-    alchemyReason: clip(alchemy?.reason, 400),
   };
 }
 

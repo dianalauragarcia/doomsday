@@ -7,17 +7,15 @@ for (const sample of SAMPLES) {
   const got = {
     fandom: result.fandom?.name ?? null,
     power: result.superpower?.name ?? null,
-    alchemy: result.alchemy?.name ?? null,
     percentile: result.percentile,
   };
   const ok =
     got.fandom === sample.expect.fandom &&
     got.power === sample.expect.power &&
-    got.alchemy === sample.expect.alchemy &&
     got.percentile === sample.expect.percentile;
   if (!ok) failed += 1;
   console.log(
-    `${ok ? "ok" : "FAIL"} ${sample.id}: ${got.percentile} | ${got.fandom} | ${got.power} | ${got.alchemy}`,
+    `${ok ? "ok" : "FAIL"} ${sample.id}: ${got.percentile} | ${got.fandom} | ${got.power}`,
   );
   if (!ok) console.log("  expected", sample.expect);
 }

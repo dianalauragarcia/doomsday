@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ALCHEMY, CHARACTERS, SUPERPOWER_BY_ID } from "./catalog.js";
+import { CHARACTERS, SUPERPOWER_BY_ID } from "./catalog.js";
 import { classifyFandom } from "./grokFandom.js";
 import { extractSignals, pickFandom } from "./signals.js";
 
@@ -131,7 +131,7 @@ function pickPowerCharacter(power, fandom, profile) {
 }
 
 function templateCopy(username) {
-  const copy = `@${username} The Authority read your timeline. Swipe the carousel for your diehard rank, top fandom, X superpower, and alchemy.`;
+  const copy = `@${username} The Authority read your timeline. Swipe the carousel for your percentile, top fandom, and X superpower.`;
   return copy.length <= 280 ? copy : copy.slice(0, 277) + "...";
 }
 
@@ -181,22 +181,18 @@ export function assignCategories(profile) {
   const signals = extractSignals(profile);
   const fandom = pickFandom(signals.scores);
   const picked = scoreSuperpower(signals.behavior);
-  if (!picked) return { signals, fandom, picked: null, power: null, character: null, partner: null, alchemy: null };
+  if (!picked) return { signals, fandom, picked: null, power: null, character: null };
   const power = SUPERPOWER_BY_ID[picked.id];
   const characterId = pickPowerCharacter(power, fandom, profile);
   const character = CHARACTERS[characterId];
-  const alchemy = ALCHEMY[characterId];
-  const partner = CHARACTERS[alchemy.partnerId];
-  return { signals, fandom, picked, power, character, partner, alchemy, profile };
+  return { signals, fandom, picked, power, character, profile };
 }
 
 function withFandom(assigned, fandom) {
   if (!fandom || !assigned.picked) return { ...assigned, fandom };
   const characterId = pickPowerCharacter(assigned.power, fandom, assigned.profile);
   const character = CHARACTERS[characterId];
-  const alchemy = ALCHEMY[characterId];
-  const partner = CHARACTERS[alchemy.partnerId];
-  return { ...assigned, fandom, character, partner, alchemy };
+  return { ...assigned, fandom, character };
 }
 
 export function withJudgedFandom(assigned, judged) {
@@ -205,11 +201,11 @@ export function withJudgedFandom(assigned, judged) {
 }
 
 export async function analyzeProfile(profile) {
-  let { signals, fandom, picked, power, character, partner, alchemy } = assignCategories(profile);
+  let { signals, fandom, picked, power, character } = assignCategories(profile);
   const judged = await classifyFandom(profile, fandom);
   if (judged.viaGrok || judged.grokStatus === "default") {
-    ({ fandom, character, partner, alchemy } = withFandom(
-      { picked, power, character, partner, alchemy, profile },
+    ({ fandom, character } = withFandom(
+      { picked, power, character, profile },
       judged.fandom,
     ));
   }
@@ -222,7 +218,6 @@ export async function analyzeProfile(profile) {
       percentile: signals.percentile,
       fandom: fandomName,
       superpower: power?.ability ?? power?.name ?? null,
-      alchemy: partner?.name ?? null,
       evidence: {
         fandomTerms: fandom?.evidence ?? [],
         superpowerBecause: picked?.because ?? null,
@@ -265,12 +260,6 @@ export async function analyzeProfile(profile) {
           status: power.status,
         }
       : null,
-    alchemy: partner
-      ? {
-          name: partner.name,
-          reason: alchemy.reason,
-        }
-      : null,
     postCopy: flavor.text,
     copySource: flavor.source,
     shareText: flavor.text,
@@ -297,12 +286,6 @@ export async function analyzeProfile(profile) {
           ? `${power.means}. ${picked.because}.`
           : "Not enough behavior signal for a superpower.",
       },
-      {
-        id: "alchemy",
-        label: "Alchemy",
-        title: partner?.name ?? "Unscored",
-        body: alchemy?.reason ?? "Alchemy waits for a superpower.",
-      },
     ],
     postsRead: signals.postsRead,
     followsRead: signals.followsRead,
@@ -312,7 +295,7 @@ export async function analyzeProfile(profile) {
     source: profile.source || "live",
     media: {
       mode: "carousel",
-      note: "One reply. Four composed slides, one category each. Shotstack in production. No image is generated.",
+      note: "One reply. Three composed slides, one category each. Shotstack in production. No image is generated.",
     },
   };
 }

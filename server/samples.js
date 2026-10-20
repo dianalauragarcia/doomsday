@@ -20,7 +20,7 @@ export const SAMPLES = [
     id: "thor",
     label: "Thor · posts a lot",
     blurb: "Heavy Avengers posting and a few MCU reposts.",
-    expect: { fandom: "Thor", power: "Optic Blasts", alchemy: "Attuma", percentile: "Top 5%" },
+    expect: { fandom: "Thor", power: "Optic Blasts", percentile: "Top 5%" },
     profile: {
       username: "godofthunder",
       name: "Odinson Hours",
@@ -42,7 +42,6 @@ export const SAMPLES = [
     expect: {
       fandom: "The Invisible Woman",
       power: "Vibranium Shield",
-      alchemy: "Magneto",
       percentile: "Top 5%",
     },
     profile: {
@@ -62,7 +61,7 @@ export const SAMPLES = [
     id: "loki",
     label: "Loki · quote posts",
     blurb: "Reframes other posts more than he posts his own.",
-    expect: { fandom: "Loki", power: "Illusions", alchemy: "Gambit", percentile: "Top 5%" },
+    expect: { fandom: "Loki", power: "Illusions", percentile: "Top 5%" },
     profile: {
       username: "mischiefquotes",
       name: "Quote of Mischief",
@@ -84,7 +83,6 @@ export const SAMPLES = [
     expect: {
       fandom: "Nightcrawler",
       power: "Teleportation",
-      alchemy: "Ant-Man",
       percentile: "Top 5%",
     },
     profile: {
@@ -108,7 +106,6 @@ export const SAMPLES = [
     expect: {
       fandom: "Gambit",
       power: "Kinetic Energy Charging",
-      alchemy: "Loki",
       percentile: "Top 5%",
     },
     profile: {
@@ -132,7 +129,6 @@ export const SAMPLES = [
     expect: {
       fandom: "Magneto",
       power: "Magnetism Manipulation",
-      alchemy: "Black Panther (Shuri)",
       percentile: "Top 5%",
     },
     profile: {
@@ -153,7 +149,6 @@ export const SAMPLES = [
     expect: {
       fandom: "Doctor Doom",
       power: "Vibranium Shield",
-      alchemy: "Magneto",
       percentile: "Top 5%",
     },
     profile: {

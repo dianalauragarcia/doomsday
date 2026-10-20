@@ -23,7 +23,7 @@
       <h1>What does your X timeline say about your MCU fandom?</h1>
       <p class="lede">
         Opt in and the Authority reads your bio, the accounts you follow, your recent posts, and your MCU reposts.
-        You get one reply. Swipe the carousel: diehard rank, top fandom, X superpower, and alchemy.
+        You get one reply. Swipe the carousel: your percentile, top fandom, and X superpower.
       </p>
 
       <form id="form" class="lookup">
@@ -41,14 +41,13 @@
     <section class="stage" aria-live="polite">
       <article id="empty" class="card idle">
         <p class="card-kicker">One reply</p>
-        <h2>Four slides. One carousel.</h2>
+        <h2>Three slides. One carousel.</h2>
         <ol class="spec">
           <li><strong>Diehard</strong> Top 5%, 10%, 25%, or 50%, ranked against the 15,000-follower baseline.</li>
           <li><strong>Top fandom</strong> The MCU character your bio, follows, posts, and reposts point to.</li>
           <li><strong>X superpower</strong> What your behavior on X maps to. Quiet timelines get Intangibility or Phasing.</li>
-          <li><strong>Alchemy</strong> The character who complements that superpower character.</li>
         </ol>
-        <p class="fine">Production attaches four Shotstack slides to a single post. Profile frames use the fan’s existing photo via oAuth.</p>
+        <p class="fine">Production attaches three Shotstack slides to a single post. Profile frames use the fan’s existing photo via oAuth.</p>
       </article>
 
       <article id="loading" class="card idle" hidden>
@@ -101,26 +100,26 @@
         <div>
           <p class="card-kicker">Top fandom</p>
           <ul class="metrics">
-            <li><span>No match</span><strong>4,936</strong></li>
-            <li><span>Spider-Man</span><strong>2,824</strong></li>
-            <li><span>Captain America</span><strong>1,838</strong></li>
-            <li><span>Iron Man</span><strong>1,086</strong></li>
-            <li><span>Thor</span><strong>664</strong></li>
-            <li><span>Ghost</span><strong>60</strong></li>
+            <li><span>Ghost (blank or thin)</span><strong>4,710</strong></li>
+            <li><span>Spider-Man</span><strong>2,486</strong></li>
+            <li><span>Captain America</span><strong>1,721</strong></li>
+            <li><span>Iron Man</span><strong>1,027</strong></li>
+            <li><span>Star-Lord</span><strong>619</strong></li>
+            <li><span>Deadpool</span><strong>581</strong></li>
           </ul>
         </div>
         <div>
           <p class="card-kicker">X superpower</p>
           <ul class="metrics">
-            <li><span>No match</span><strong>7,154</strong></li>
-            <li><span>Kinetic Energy Charging</span><strong>2,018</strong></li>
-            <li><span>Teleportation</span><strong>1,763</strong></li>
+            <li><span>Intangibility or Phasing</span><strong>7,154</strong></li>
+            <li><span>Kinetic Energy Charging</span><strong>2,313</strong></li>
             <li><span>Pym Particles</span><strong>1,605</strong></li>
             <li><span>Super-Serum</span><strong>1,273</strong></li>
+            <li><span>Optic Blasts</span><strong>1,150</strong></li>
           </ul>
         </div>
       </div>
-      <p class="fine">Diehard bands are the empirical 15,000 opt-in cutoffs (blended ≥ 0.25 / 0.1875 / 0.0625 / 1⁄48). Fandom and superpower counts are from the completed forced-match 15k run. A new report-prompt classify was still in progress when these numbers were published.</p>
+      <p class="fine">Diehard bands are the empirical 15,000 opt-in cutoffs (blended ≥ 0.25 / 0.1875 / 0.0625 / 1⁄48). Fandom and superpower counts are from the completed report-prompt 15k run (Oct 20): every profile gets a hero except about 89, and blank or thin profiles are Ghost in code.</p>
     </section>
   </main>
 
