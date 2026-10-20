@@ -110,47 +110,6 @@ h1 {
 }
 .handle { margin: 0; font-size: 18px; }
 .frame-note, .note, .fine, .sub { margin: 4px 0 0; font-size: 13px; }
-.slide-title {
-  margin: 6px 0 0;
-  font-family: Palatino, Georgia, serif;
-  font-size: 40px;
-  line-height: 1;
-  color: var(--gold);
-}
-.carousel { margin-top: 18px; }
-.carousel-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 16px;
-}
-.nav {
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-}
-.dots { display: flex; gap: 6px; }
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 99px;
-  border: 0;
-  padding: 0;
-  background: #3a3128;
-  cursor: pointer;
-}
-.dot.on { background: var(--gold); }
-.meters { display: grid; gap: 8px; margin-top: 16px; }
-.meter { display: grid; grid-template-columns: 110px 1fr auto; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
-.bar { height: 6px; background: #2c241c; border-radius: 99px; overflow: hidden; }
-.bar span { display: block; height: 100%; background: var(--gold); }
-.copy { margin-top: 16px; color: var(--ink); }
 .share { width: 100%; margin-top: 12px; }
 .shimmer {
   height: 18px;
@@ -205,3 +164,79 @@ footer p { margin: 0; }
   .metric-grid { grid-template-columns: 1fr; }
   .slide-title { font-size: 32px; }
 }
+
+/* reply preview */
+.post { margin-top: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: #120e0b; }
+.post-head { display: flex; gap: 10px; align-items: center; }
+.brand-avatar { width: 44px; height: 44px; font-size: 12px; letter-spacing: 0.05em; border-width: 2px; }
+.post-name { margin: 0; font-weight: 600; font-size: 15px; }
+.post-handle { color: var(--muted); font-weight: 400; margin-left: 4px; }
+.post-to { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.post-to span { color: var(--gold); }
+.copy { margin: 12px 0; color: var(--ink); line-height: 1.4; }
+
+.carousel { position: relative; }
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+.track::-webkit-scrollbar { display: none; }
+.plate {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px;
+  background:
+    radial-gradient(420px 260px at 85% 0%, rgba(226, 194, 122, 0.22), transparent 60%),
+    linear-gradient(160deg, #2a1218 0%, #160f0b 70%);
+}
+.plate-diehard { background: radial-gradient(420px 260px at 85% 0%, rgba(226, 194, 122, 0.25), transparent 60%), linear-gradient(160deg, #3a1520 0%, #160f0b 75%); }
+.plate-fandom { background: radial-gradient(420px 260px at 15% 0%, rgba(226, 194, 122, 0.2), transparent 60%), linear-gradient(200deg, #1b2230 0%, #160f0b 75%); }
+.plate-superpower { background: radial-gradient(420px 260px at 50% 100%, rgba(226, 194, 122, 0.22), transparent 60%), linear-gradient(180deg, #2a2210 0%, #160f0b 75%); }
+.plate-top, .plate-foot {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.plate-main { display: flex; flex-direction: column; gap: 10px; }
+.slide-title {
+  margin: 0;
+  font-family: Palatino, Georgia, serif;
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1;
+  color: var(--gold);
+}
+.plate .reason { margin: 0; font-size: 14px; }
+.plate-extra { margin: 4px 0 0; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); }
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(16, 13, 10, 0.8);
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.arrow:disabled { opacity: 0.25; cursor: default; }
+.arrow.prev { left: 8px; }
+.arrow.next { right: 8px; }
+.dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+.dot { width: 8px; height: 8px; border-radius: 99px; border: 0; padding: 0; background: #3a3128; cursor: pointer; }
+.dot.on { background: var(--gold); }

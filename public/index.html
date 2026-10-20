@@ -58,26 +58,23 @@
       </article>
 
       <article id="report" class="card report" hidden>
-        <p class="card-kicker">One reply</p>
-        <div class="who">
-          <div class="avatar" id="avatar" aria-hidden="true">FV</div>
-          <div>
-            <p class="handle" id="who"></p>
-            <p class="frame-note">Swipe the carousel. Each slide is one match.</p>
+        <p class="card-kicker">The reply the fan gets</p>
+        <div class="post">
+          <div class="post-head">
+            <div class="avatar brand-avatar" aria-hidden="true">FVA</div>
+            <div>
+              <p class="post-name">Fan Variance Authority <span class="post-handle">@AvengersDoomsday</span></p>
+              <p class="post-to">Replying to <span id="who"></span></p>
+            </div>
           </div>
-        </div>
-        <div class="carousel" id="carousel">
-          <p class="label" id="slide-label"></p>
-          <p class="slide-title" id="slide-title"></p>
-          <p class="reason" id="slide-body"></p>
-          <div class="carousel-bar">
-            <button class="nav" id="prev" type="button">Previous</button>
+          <p class="copy" id="copy"></p>
+          <div class="carousel" id="carousel">
+            <div class="track" id="track"></div>
+            <button class="arrow prev" id="prev" type="button" aria-label="Previous slide">‹</button>
+            <button class="arrow next" id="next" type="button" aria-label="Next slide">›</button>
             <div class="dots" id="dots" role="tablist" aria-label="Carousel slides"></div>
-            <button class="nav" id="next" type="button">Next</button>
           </div>
         </div>
-        <div class="meters" id="meters"></div>
-        <p class="copy" id="copy"></p>
         <button class="share" id="share" type="button">Share on X</button>
         <p class="fine" id="meta"></p>
       </article>

@@ -287,12 +287,14 @@ export async function analyzeProfile(profile) {
       {
         id: "diehard",
         label: "Diehard",
+        step: 1,
         title: signals.percentile,
-        body: "Ranked against the 15,000-follower opt-in baseline from bio keywords, follows, post keywords, and MCU reposts.",
+        body: "Ranked against the 15,000-follower baseline.",
       },
       {
         id: "fandom",
         label: "Top fandom",
+        step: 2,
         title: fandomName ?? "Unranked",
         body: fandom
           ? `${fandom.franchiseName}${fandom.viaGrok ? ", from the rest of the profile" : ""}${fandom.evidence?.length ? ". " + fandom.evidence.join(", ") : ""}`
@@ -301,6 +303,8 @@ export async function analyzeProfile(profile) {
       {
         id: "superpower",
         label: "X superpower",
+        step: 3,
+        character: character?.name ?? null,
         title: power?.ability ?? power?.name ?? "Unscored",
         body: power
           ? `${power.means}. ${picked.because}.`

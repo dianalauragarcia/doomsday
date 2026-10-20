@@ -23,26 +23,41 @@ function setBusy(busy) {
   }
 }
 
-function meter(label, raw, score) {
-  const row = document.createElement("div");
-  row.className = "meter";
-  const width = Math.round(Math.max(0, Math.min(1, score)) * 100);
-  row.innerHTML = `<span>${label}</span><div class="bar"><span style="width:${width}%"></span></div><span>${raw}</span>`;
-  return row;
+function plate(slide, handle) {
+  const el = document.createElement("section");
+  el.className = `plate plate-${slide.id}`;
+  el.setAttribute("aria-label", slide.label);
+  const extra = slide.character ? `<p class="plate-extra">Power character · ${slide.character}</p>` : "";
+  el.innerHTML = `
+    <p class="plate-top"><span>${slide.step} of 3</span><span>Fan Variance Authority</span></p>
+    <div class="plate-main">
+      <p class="label">${slide.label}</p>
+      <p class="slide-title"></p>
+      <p class="reason"></p>
+      ${extra}
+    </div>
+    <p class="plate-foot"><span>@${handle}</span><span>Avengers: Doomsday</span></p>`;
+  el.querySelector(".slide-title").textContent = slide.title;
+  el.querySelector(".reason").textContent = slide.body;
+  return el;
 }
 
-function showSlide(index) {
+function showSlide(index, smooth = true) {
   if (!slides.length) return;
-  slideIndex = (index + slides.length) % slides.length;
-  const slide = slides[slideIndex];
-  document.querySelector("#slide-label").textContent = slide.label;
-  document.querySelector("#slide-title").textContent = slide.title;
-  document.querySelector("#slide-body").textContent = slide.body;
+  slideIndex = Math.max(0, Math.min(slides.length - 1, index));
+  const track = document.querySelector("#track");
+  track.scrollTo({ left: slideIndex * track.clientWidth, behavior: smooth ? "smooth" : "auto" });
+  syncDots();
+}
+
+function syncDots() {
   document.querySelectorAll(".dot").forEach((dot, dotIndex) => {
     const on = dotIndex === slideIndex;
     dot.classList.toggle("on", on);
     dot.setAttribute("aria-selected", String(on));
   });
+  document.querySelector("#prev").disabled = slideIndex === 0;
+  document.querySelector("#next").disabled = slideIndex === slides.length - 1;
 }
 
 function renderDots() {
@@ -67,26 +82,10 @@ function render(result) {
   slides = result.slides ?? [];
   slideIndex = 0;
 
-  const avatar = document.querySelector("#avatar");
-  if (result.profileImageUrl) {
-    avatar.style.backgroundImage = `url("${result.profileImageUrl}")`;
-    avatar.textContent = "";
-  } else {
-    avatar.style.backgroundImage = "";
-    avatar.textContent = result.handle.slice(0, 2).toUpperCase();
-  }
-
   document.querySelector("#who").textContent = `@${result.handle}`;
+  document.querySelector("#track").replaceChildren(...slides.map((slide) => plate(slide, result.handle)));
   renderDots();
-  showSlide(0);
-
-  const meters = document.querySelector("#meters");
-  meters.replaceChildren(
-    meter("Bio keywords", result.axes.bio, result.axisScores.bio),
-    meter("Follows", result.axes.follows, result.axisScores.follows),
-    meter("Post keywords", result.axes.postKeywords, result.axisScores.posts),
-    meter("MCU reposts", result.axes.mcuReposts, result.axisScores.reposts),
-  );
+  showSlide(0, false);
 
   document.querySelector("#copy").textContent = result.postCopy;
   const bits = [
@@ -128,6 +127,11 @@ document.querySelector("#share").addEventListener("click", () => {
   window.open(url, "_blank", "noopener");
 });
 
+document.querySelector("#track").addEventListener("scroll", () => {
+  const track = document.querySelector("#track");
+  const next = Math.round(track.scrollLeft / track.clientWidth);
+  if (next !== slideIndex) { slideIndex = next; syncDots(); }
+});
 document.querySelector("#prev").addEventListener("click", () => showSlide(slideIndex - 1));
 document.querySelector("#next").addEventListener("click", () => showSlide(slideIndex + 1));
 
