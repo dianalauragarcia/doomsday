@@ -126,7 +126,7 @@ Assign from usage behavior, not from favorite hero.
 One power per person. First matching row wins.
 
 POWER TABLE (follow this table, do not rewrite it)
-First matching row with a clear trigger wins. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
+First matching row with a clear trigger wins. Note the order: Superhuman strength (likesGiven >= 5000) comes right after Intangibility or Phasing, so a heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
 
 - trigger: Posts in last 28 days == 0 or ≈ 0
   meaning: You’re lurking in the shadows undetected
@@ -134,6 +134,12 @@ First matching row with a clear trigger wins. Rows with trigger "—" have no fi
   id: intangibility-or-phasing
   character: ghost or invisible-woman
   pick invisible-woman unless topFandom or the profile is clearly Ghost / Ava Starr
+- trigger: Lots of likes (likesGiven >= 5000)
+  meaning: You’re unafraid to smash that like button
+  power: Superhuman strength
+  id: superhuman-strength
+  character: beast or mbaku or the-thing
+  (beast if bookish, mbaku if loud warrior, the-thing if blunt; default the-thing)
 - trigger: Very few posts, then a burst / quiet until they show up
   meaning: You move undetected until it’s time to strike
   power: Pym Particles (Shrinking)
@@ -169,12 +175,6 @@ First matching row with a clear trigger wins. Rows with trigger "—" have no fi
   power: Water Skills
   id: water-skills
   character: namor or namora or attuma
-- trigger: Lots of likes (likesGiven >= 5000)
-  meaning: You’re unafraid to smash that like button
-  power: Superhuman strength
-  id: superhuman-strength
-  character: beast or mbaku or the-thing
-  (beast if bookish, mbaku if loud warrior, the-thing if blunt; default the-thing)
 - trigger: —
   meaning: —
   power: Mjolnir

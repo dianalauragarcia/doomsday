@@ -47,6 +47,15 @@ function scoreSuperpower(behavior) {
   if (posts28d === 0 && reposts28d === 0) {
     return { id: "phasing", points: 100, because: "No posts or reposts in the last 28 days" };
   }
+  // Right after Phasing on purpose: a lifetime like count says nothing about posting, so a
+  // later slot lets Kinetic/Optic/Pym absorb most heavy likers (197 of 1,514 reached Strength).
+  if (likesGiven != null && likesGiven >= LIKES_STRENGTH_MIN) {
+    return {
+      id: "strength",
+      points: 40 + Math.min(Math.floor(likesGiven / 1000), 40),
+      because: `${likesGiven.toLocaleString("en-US")} total likes given (public like count)`,
+    };
+  }
   if (posts28d >= 1 && posts28d <= 3 && reposts28d < 3 && quotes28d < 2) {
     return { id: "pym", points: 26, because: "Only a few posts, then silence" };
   }
@@ -58,13 +67,6 @@ function scoreSuperpower(behavior) {
   }
   if (reposts28d >= 8) {
     return { id: "kinetic", points: 45 + reposts28d, because: `${reposts28d} reposts in 28 days` };
-  }
-  if (likesGiven != null && likesGiven >= LIKES_STRENGTH_MIN) {
-    return {
-      id: "strength",
-      points: 40 + Math.min(Math.floor(likesGiven / 1000), 40),
-      because: `${likesGiven.toLocaleString("en-US")} total likes given (public like count)`,
-    };
   }
   if (avgRepostsReceived >= 8) {
     return { id: "telepathy", points: 60, because: "Original posts are heavily reposted" };
