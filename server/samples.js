@@ -19,7 +19,7 @@ export const SAMPLES = [
   {
     id: "thor",
     label: "Thor · posts a lot",
-    blurb: "Heavy Avengers posting and a few MCU reposts.",
+    blurb: "10+ original posts in 28 days and a few MCU reposts.",
     expect: { fandom: "Thor", power: "Optic Blasts", percentile: "Top 5%" },
     profile: {
       username: "godofthunder",
@@ -38,7 +38,7 @@ export const SAMPLES = [
   {
     id: "sue",
     label: "Invisible Woman · lurking",
-    blurb: "Bio and older posts. The last 100 posts still map a superpower.",
+    blurb: "Nothing in the last 28 days, so older posts still map a superpower.",
     expect: {
       fandom: "The Invisible Woman",
       power: "Vibranium Shield",
@@ -60,7 +60,7 @@ export const SAMPLES = [
   {
     id: "loki",
     label: "Loki · quote posts",
-    blurb: "Reframes other posts more than he posts his own.",
+    blurb: "2+ quote posts in 28 days, more than his own posts.",
     expect: { fandom: "Loki", power: "Illusions", percentile: "Top 5%" },
     profile: {
       username: "mischiefquotes",
@@ -79,7 +79,7 @@ export const SAMPLES = [
   {
     id: "nightcrawler",
     label: "Nightcrawler · replies",
-    blurb: "Lives in the replies under everyone else's posts.",
+    blurb: "6+ replies in 28 days, more than his own posts.",
     expect: {
       fandom: "Nightcrawler",
       power: "Teleportation",
@@ -102,7 +102,7 @@ export const SAMPLES = [
   {
     id: "gambit",
     label: "Gambit · reposts",
-    blurb: "Charges up other people's MCU posts.",
+    blurb: "15+ reposts in 28 days charging up other people's MCU posts.",
     expect: {
       fandom: "Gambit",
       power: "Kinetic Energy Charging",
@@ -125,7 +125,7 @@ export const SAMPLES = [
   {
     id: "magneto",
     label: "Magneto · draws a crowd",
-    blurb: "Followers outnumber following by more than 10 to 1.",
+    blurb: "Followers outnumber following 2 to 1 or better.",
     expect: {
       fandom: "Magneto",
       power: "Magnetism Manipulation",
