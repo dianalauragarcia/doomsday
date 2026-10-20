@@ -37,3 +37,10 @@ Set these environment variables on the project:
 - `XAI_MODEL` — optional
 
 Sample profiles work without either key.
+
+## Deploy on Render
+
+`render.yaml` defines one Node web service (`npm ci --omit=dev`, `npm start`, health check `/api/samples`).
+In Render: New → Blueprint → pick this repo. Then set `X_BEARER_TOKEN` (live handles) and `XAI_API_KEY`
+(Grok fandom and superpower pick, plus the caption). Without them the sample profiles still run with the
+template caption. The server reads `PORT` from Render automatically.
