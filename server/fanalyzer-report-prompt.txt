@@ -26,6 +26,7 @@ SIGNALS
 - keywords in the last 100 posts
 - number of MCU reposts
 - usage behavior from the X Superpower table (see the behavior object on each profile)
+Each profile also carries deterministicSuperpower: {id, label, because}, the row the code's rules picked from those numbers.
 Behavior fields on each profile (use these for superpower):
 posts28d, originals28d, replies28d, quotes28d, reposts28d, avgLikes, avgRepostsReceived,
 followers, following, followerFollowingRatio, likesGiven, profileUpdatedWeekOverWeek
@@ -123,10 +124,16 @@ Map those extra names to thanos, ultron, red-skull, zemo.
 
 3) X SUPERPOWER
 Assign from usage behavior, not from favorite hero.
-One power per person. First matching row wins.
+One power per person.
+The code already picked deterministicSuperpower by running the table in order with fixed thresholds. You decide the final one:
+- Keep it (return the same id) when the numbers and the profile agree. This is the usual answer.
+- Replace it with another row only when the behavior numbers plus the bio, posts, and follows clearly point to a better row than the threshold did (a near-miss on a number, or a signal the thresholds cannot see, such as a bio that says the person only lurks, or posts that are all quote-style commentary).
+- Never replace it on a hunch. If you are unsure, keep it.
+- The reason must quote the behavior number or profile signal that decided it.
+- Intangibility or Phasing is only for posts28d == 0 and reposts28d == 0, and always wins then.
 
 POWER TABLE (follow this table, do not rewrite it)
-First matching row with a clear trigger wins. Order for the numeric rows: Intangibility or Phasing, Superhuman strength (likesGiven >= 5000), Illusions, Pym Particles, Shapeshifting, Optic Blasts, Kinetic Energy Charging, Telepathy, Magnetism Manipulation, Teleportation. A heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
+The deterministic pick uses the first matching row with a clear trigger. Order for the numeric rows: Intangibility or Phasing, Superhuman strength (likesGiven >= 5000), Illusions, Pym Particles, Shapeshifting, Optic Blasts, Kinetic Energy Charging, Telepathy, Magnetism Manipulation, Teleportation. A heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
 
 - trigger: Posts in last 28 days == 0 or ≈ 0
   meaning: You’re lurking in the shadows undetected

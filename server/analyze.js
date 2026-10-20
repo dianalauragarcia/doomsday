@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CHARACTERS, SUPERPOWER_BY_ID } from "./catalog.js";
+import { CHARACTERS, SUPERPOWERS, SUPERPOWER_BY_ID } from "./catalog.js";
 import { classifyFandom } from "./grokFandom.js";
 import { extractSignals, pickFandom } from "./signals.js";
 
@@ -125,6 +125,44 @@ function scoreSuperpower(behavior) {
   return { id: "serum", points: 15, because: "No single behavior dominates" };
 }
 
+const slug = (value) =>
+  String(value ?? "")
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const POWER_IDS = new Map();
+for (const power of SUPERPOWERS) {
+  for (const key of [power.id, power.name, power.ability, power.ability.replace(/\s*\(.*\)/, "")]) {
+    POWER_IDS.set(slug(key), power.id);
+  }
+}
+POWER_IDS.set("teleportation-or-shrinking", "teleport");
+POWER_IDS.set("widows-bite", "bite");
+
+// Grok answers with the prompt's power ids (e.g. optic-blasts); the code uses short ids (optic).
+export function resolvePowerId(raw) {
+  return POWER_IDS.get(slug(raw)) ?? null;
+}
+
+// Grok may keep the code's superpower or replace it with a better-fitting table row.
+// Guardrail: Intangibility or Phasing is only ever for zero posts and zero reposts, both ways.
+function applyGrokPower(assigned, judged, behavior) {
+  const id = resolvePowerId(judged?.powerId);
+  if (!id || !assigned.picked || id === assigned.picked.id) return assigned;
+  const zeroActivity = behavior.posts28d === 0 && behavior.reposts28d === 0;
+  if (assigned.picked.id === "phasing" || (id === "phasing" && !zeroActivity)) return assigned;
+  const power = SUPERPOWER_BY_ID[id];
+  const reason = String(judged.powerReason ?? "").trim().replace(/[.]+$/, "");
+  const picked = { id, points: 0, because: reason || power.means, viaGrok: true, replaced: assigned.picked.id };
+  const grokCharacter = String(judged.powerCharacter ?? "").trim().toLowerCase();
+  const characterId = power.characters.includes(grokCharacter)
+    ? grokCharacter
+    : pickPowerCharacter(power, assigned.fandom, assigned.profile);
+  return { ...assigned, picked, power, character: CHARACTERS[characterId] };
+}
+
 function pickPowerCharacter(power, fandom, profile) {
   if (power.id === "phasing") {
     return fandom?.id === "ghost" ? "ghost" : "invisible-woman";
@@ -222,7 +260,15 @@ export function withJudgedFandom(assigned, judged) {
 
 export async function analyzeProfile(profile) {
   let { signals, fandom, picked, power, character } = assignCategories(profile);
-  const judged = await classifyFandom(profile, fandom);
+  const rulesPower = picked
+    ? { id: picked.id, label: power.ability, because: picked.because }
+    : null;
+  const judged = await classifyFandom(profile, fandom, rulesPower);
+  ({ picked, power, character } = applyGrokPower(
+    { signals, fandom, picked, power, character, profile },
+    judged,
+    signals.behavior,
+  ));
   if (judged.viaGrok || judged.grokStatus === "default") {
     ({ fandom, character } = withFandom(
       { picked, power, character, profile },
@@ -277,6 +323,7 @@ export async function analyzeProfile(profile) {
           means: power.means,
           character: character.name,
           because: picked.because,
+          viaGrok: Boolean(picked.viaGrok),
           status: power.status,
         }
       : null,

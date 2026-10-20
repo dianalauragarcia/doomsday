@@ -233,7 +233,7 @@ export function categoryIdFor(fandom) {
   return null;
 }
 
-function profileBrief(profile, rulesFandom, mustPick = false) {
+function profileBrief(profile, rulesFandom, mustPick = false, rulesPower = null) {
   const posts = (profile.posts ?? [])
     .map((post) => clip(post.text, 140))
     .filter(Boolean)
@@ -265,6 +265,7 @@ function profileBrief(profile, rulesFandom, mustPick = false) {
       profileUpdatedWeekOverWeek: behavior.profileUpdatedWeekOverWeek,
     },
     deterministic: rulesId ? { categoryId: rulesId, name: rulesFandom.name } : null,
+    deterministicSuperpower: rulesPower ?? null,
     ...(mustPick
       ? {
           retry:
@@ -398,22 +399,22 @@ function stillUnmatched(decision) {
   return !decision.fandom && decision.grokStatus !== "default";
 }
 
-async function forcePick(profile, rulesFandom) {
-  const asked = await askWithRetry(profileBrief(profile, rulesFandom, true), 1400);
+async function forcePick(profile, rulesFandom, rulesPower = null) {
+  const asked = await askWithRetry(profileBrief(profile, rulesFandom, true, rulesPower), 1400);
   if (!asked?.ok) return null;
   const decision = decide(rulesFandom, asked.parsed);
   return decision.fandom ? decision : null;
 }
 
-export async function classifyFandom(profile, rulesFandom) {
+export async function classifyFandom(profile, rulesFandom, rulesPower = null) {
   const early = ghostBefore(profile, rulesFandom);
   if (early) return early;
-  const asked = await askWithRetry(profileBrief(profile, rulesFandom), 1400);
+  const asked = await askWithRetry(profileBrief(profile, rulesFandom, false, rulesPower), 1400);
   if (!asked?.ok) {
     return { fandom: rulesFandom ?? null, viaGrok: false, grokStatus: asked?.status || "error", reason: "", confidence: null };
   }
   const decision = decide(rulesFandom, asked.parsed);
-  if (stillUnmatched(decision)) return (await forcePick(profile, rulesFandom)) ?? decision;
+  if (stillUnmatched(decision)) return (await forcePick(profile, rulesFandom, rulesPower)) ?? decision;
   return decision;
 }
 
@@ -421,7 +422,7 @@ export async function classifyMany(entries) {
   const pending = entries.filter((entry) => !ghostBefore(entry.profile, entry.rulesFandom));
   const payload = pending.map((entry) => ({
     id: entry.id,
-    ...profileBrief(entry.profile, entry.rulesFandom),
+    ...profileBrief(entry.profile, entry.rulesFandom, false, entry.rulesPower ?? null),
   }));
   const asked = pending.length ? await askWithRetry(payload, 900 * pending.length) : null;
   const byId = new Map();
@@ -430,7 +431,7 @@ export async function classifyMany(entries) {
   }
   if (pending.length > 0 && byId.size === 0) {
     const singles = [];
-    for (const entry of entries) singles.push(await classifyFandom(entry.profile, entry.rulesFandom));
+    for (const entry of entries) singles.push(await classifyFandom(entry.profile, entry.rulesFandom, entry.rulesPower ?? null));
     return singles;
   }
   const first = entries.map((entry) => {
@@ -450,7 +451,7 @@ export async function classifyMany(entries) {
     while (queue.length) {
       const index = queue.shift();
       const entry = entries[index];
-      const picked = await forcePick(entry.profile, entry.rulesFandom);
+      const picked = await forcePick(entry.profile, entry.rulesFandom, entry.rulesPower ?? null);
       if (picked) forced.set(index, picked);
     }
   });
