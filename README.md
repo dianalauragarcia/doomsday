@@ -9,7 +9,7 @@ npm install
 npm start
 ```
 
-Open http://localhost:5050 and pick a sample profile. Each sample is a different MCU read: diehard band, top fandom, X superpower, and alchemy.
+Open http://localhost:5050 and pick a sample profile. Each sample is a different MCU read: diehard band, top fandom, and X superpower.
 
 ```bash
 npm run check

@@ -88,13 +88,6 @@ function render(result) {
   showSlide(0, false);
 
   document.querySelector("#copy").textContent = result.postCopy;
-  const bits = [
-    `${result.postsRead} posts read`,
-    result.followsUnavailable ? "follows unavailable" : `${result.followsRead} follows read`,
-    result.copySource === "grok" ? "reply written by Grok" : "reply from the template",
-    "one carousel, three slides",
-  ];
-  document.querySelector("#meta").textContent = bits.join(" · ");
 }
 
 async function analyze(body) {
