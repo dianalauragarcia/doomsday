@@ -113,6 +113,20 @@ function addHit(scores, hit, points) {
   bucket.terms.add(hit.keyword);
 }
 
+// Fandom spread: franchise points (franchise keywords and handles, plus each franchise's characters)
+// and how evenly they are split. A chameleon has points in 3+ franchises and no franchise on top.
+export function fandomSpread(scores) {
+  const perFranchise = {};
+  for (const franchise of FRANCHISES) perFranchise[franchise.id] = scores.franchises[franchise.id].points;
+  for (const [characterId, bucket] of Object.entries(scores.characters)) {
+    perFranchise[CHARACTERS[characterId].franchiseId] += bucket.points;
+  }
+  const values = Object.values(perFranchise).filter((points) => points > 0);
+  const total = values.reduce((sum, points) => sum + points, 0);
+  const top = values.reduce((max, points) => Math.max(max, points), 0);
+  return { franchises: values.length, topShare: total > 0 ? top / total : 1, total };
+}
+
 export function extractSignals(profile, now = Date.now()) {
   const scores = blankScores();
   const bioHits = matchText(profile.description);
@@ -286,6 +300,7 @@ export function extractSignals(profile, now = Date.now()) {
       ratio,
       likesGiven: profile.likesGiven ?? null,
       profileUpdatedWeekOverWeek: profile.profileUpdatedWeekOverWeek ?? null,
+      fandomSpread: fandomSpread(scores),
     },
     postsRead: (profile.posts ?? []).length,
     followsRead: (profile.follows ?? []).length,

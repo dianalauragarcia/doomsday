@@ -143,6 +143,22 @@ export const SAMPLES = [
     },
   },
   {
+    id: "mystique",
+    label: "Mystique · many fandoms",
+    blurb: "Fandom points in 4 franchises, none above 40%.",
+    expect: { fandom: "Gamora", power: "Shapeshifting", percentile: "Top 5%" },
+    profile: {
+      username: "manyfaces",
+      name: "Many Faces",
+      description: "Whoever you need me to be.",
+      publicMetrics: { followers: 350, following: 400, tweets: 600 },
+      follows: ["Avengers", "xmenmovies", "FantasticFour", "ZoeSaldana"],
+      likesGiven: 310,
+      profileUpdatedWeekOverWeek: false,
+      posts: posts([{ n: 6, daysAgo: 3, text: "Just thinking out loud today." }]),
+    },
+  },
+  {
     id: "doom",
     label: "Doctor Doom · guarded posts",
     blurb: "Posts in public and stays out of the replies.",

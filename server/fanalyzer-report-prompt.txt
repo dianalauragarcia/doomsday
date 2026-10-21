@@ -29,7 +29,9 @@ SIGNALS
 Each profile also carries deterministicSuperpower: {id, label, because}, the row the code's rules picked from those numbers.
 Behavior fields on each profile (use these for superpower):
 posts28d, originals28d, replies28d, quotes28d, reposts28d, avgLikes, avgRepostsReceived,
-followers, following, followerFollowingRatio, likesGiven, profileUpdatedWeekOverWeek
+followers, following, followerFollowingRatio, likesGiven, profileUpdatedWeekOverWeek,
+fandomFranchises, fandomTopFranchiseShare
+fandomFranchises is how many franchises have fandom points on this profile (follows, bio keywords, post keywords, reposts); fandomTopFranchiseShare is the biggest franchise's share of all franchise points (0 to 1).
 likesGiven is the account's public lifetime total of likes it has given (public_metrics.like_count), or null when unknown. Likes are private, so you never see which posts they liked.
 Do not quote a specific post in the reason if you can quote a bio, handle, follow, or behavior instead. Many MCU fans lurk and do not post.
 
@@ -133,7 +135,7 @@ The code already picked deterministicSuperpower by running the table in order wi
 - Intangibility or Phasing is only for posts28d == 0 and reposts28d == 0, and always wins then.
 
 POWER TABLE (follow this table, do not rewrite it)
-The deterministic pick uses the first matching row with a clear trigger. Order for the numeric rows: Intangibility or Phasing, Superhuman strength (likesGiven >= 5000), Illusions, Pym Particles, Shapeshifting, Optic Blasts, Kinetic Energy Charging, Telepathy, Magnetism Manipulation, Teleportation. A heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
+The deterministic pick uses the first matching row with a clear trigger. Order for the numeric rows: Intangibility or Phasing, Superhuman strength (likesGiven >= 5000), Illusions, Shapeshifting, Pym Particles, Optic Blasts, Kinetic Energy Charging, Telepathy, Magnetism Manipulation, Teleportation. A heavy liker with recent activity is Superhuman strength before any posting-based row. Rows with trigger "—" have no fixed behavior metric: assign them only when the meaning line is clearly true in the profile (or, if meaning is also —, only when the power itself is clearly the right label). Use legal character ids only.
 
 - trigger: Posts in last 28 days == 0 or ≈ 0
   meaning: You’re lurking in the shadows undetected
@@ -157,7 +159,7 @@ The deterministic pick uses the first matching row with a clear trigger. Order f
   power: Pym Particles (Shrinking)
   id: pym-particles
   character: ant-man
-- trigger: Week-over-week profile updates (name, bio, or avatar changed at least once in the last 7 days)
+- trigger: Fandom spread (fandomFranchises >= 3 and fandomTopFranchiseShare <= 0.4: a fan of several franchises at once, none dominant), or a profile that changed in the last 7 days when profileUpdatedWeekOverWeek is true
   meaning: You’re always changing who you are or perceive to be
   power: Shapeshifting
   id: shapeshifting

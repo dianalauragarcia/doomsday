@@ -36,9 +36,11 @@ export const POWER_RULES = {
   magnetismRatio: 2,
   magnetismMinFollowers: 50,
   teleportReplies: 6,
+  spreadFranchises: 3,
+  spreadTopShare: 0.4,
 };
 
-// First matching row wins. Order: Phasing, Strength, Illusions, Pym, Shapeshifting, Optic,
+// First matching row wins. Order: Phasing, Strength, Illusions, Shapeshifting, Pym, Optic,
 // Kinetic, Telepathy, Magnetism, Teleportation, then the proxy rows, then the Serum floor.
 function scoreSuperpower(behavior) {
   const {
@@ -53,6 +55,7 @@ function scoreSuperpower(behavior) {
     ratio,
     likesGiven,
     profileUpdatedWeekOverWeek,
+    fandomSpread,
   } = behavior;
   const R = POWER_RULES;
 
@@ -72,11 +75,24 @@ function scoreSuperpower(behavior) {
   if (quotes28d >= R.illusionsQuotes && quotes28d > originals28d) {
     return { id: "illusions", points: 65 + quotes28d, because: `${quotes28d} quote posts, more than ${originals28d} original posts` };
   }
-  if (posts28d >= 1 && posts28d <= 3 && reposts28d < 3 && quotes28d < 2) {
-    return { id: "pym", points: 26, because: "Only a few posts, then silence" };
+  // Shapeshifting: a fan of many franchises at once. Fandom points in 3+ franchises, none above ~40%.
+  // (A profile that changed in the last 7 days also counts, when two snapshots are available.)
+  if (
+    fandomSpread &&
+    fandomSpread.franchises >= R.spreadFranchises &&
+    fandomSpread.topShare <= R.spreadTopShare
+  ) {
+    return {
+      id: "shapeshift",
+      points: 70 + fandomSpread.franchises,
+      because: `Fandom points spread across ${fandomSpread.franchises} franchises, the largest only ${Math.round(fandomSpread.topShare * 100)}%`,
+    };
   }
   if (profileUpdatedWeekOverWeek === true) {
     return { id: "shapeshift", points: 85, because: "Name, bio, or avatar changed in the last 7 days" };
+  }
+  if (posts28d >= 1 && posts28d <= 3 && reposts28d < 3 && quotes28d < 2) {
+    return { id: "pym", points: 26, because: "Only a few posts, then silence" };
   }
   if (originals28d >= R.opticOriginals) {
     return { id: "optic", points: 50 + originals28d, because: `${originals28d} original posts in 28 days` };

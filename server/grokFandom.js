@@ -263,6 +263,8 @@ function profileBrief(profile, rulesFandom, mustPick = false, rulesPower = null)
       followerFollowingRatio: behavior.ratio == null ? null : Number(behavior.ratio.toFixed(2)),
       likesGiven: behavior.likesGiven,
       profileUpdatedWeekOverWeek: behavior.profileUpdatedWeekOverWeek,
+      fandomFranchises: behavior.fandomSpread?.franchises ?? 0,
+      fandomTopFranchiseShare: behavior.fandomSpread ? Number(behavior.fandomSpread.topShare.toFixed(2)) : null,
     },
     deterministic: rulesId ? { categoryId: rulesId, name: rulesFandom.name } : null,
     deterministicSuperpower: rulesPower ?? null,
